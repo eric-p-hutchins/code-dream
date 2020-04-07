@@ -4,7 +4,9 @@ HEADERS = \
  code-dream-image.h \
  code-dream-char-info-set.h \
  code-dream-char-info.h \
- code-dream-format-type.h
+ code-dream-format-type.h \
+ code-dream-code-display-set.h \
+ code-dream-code-display.h
 
 SOURCES = \
  main.c \
@@ -12,7 +14,9 @@ SOURCES = \
  code-image-set.c \
  code-dream-image.c \
  code-dream-char-info-set.c \
- code-dream-char-info.c
+ code-dream-char-info.c \
+ code-dream-code-display-set.c \
+ code-dream-code-display.c
 
 .PHONY: all clean
 
@@ -32,5 +36,5 @@ OBJ_FILES = \
  code-dream-char-info-set.o \
  code-dream-char-info.o
 
-code-dream: $(OBJ_FILES) $(HEADERS)
-	gcc -o $@ $(OBJ_FILES) -lSDL2 -lSDL2_ttf
+code-dream: $(SOURCES) $(HEADERS)
+	gcc -o $@ $(SOURCES) -lSDL2 -lSDL2_ttf

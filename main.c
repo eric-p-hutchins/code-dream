@@ -24,17 +24,15 @@
 #include "code-source.h"
 #include "code-image-set.h"
 #include "code-dream-image.h"
+#include "code-dream-code-display-set.h"
 
-#define SCREEN_WIDTH 640
-#define SCREEN_HEIGHT 400
+#include "defines.h"
 
 int t = 0;
 
 int total_time = 240;
 
 int line_to_zoom_under = 100;
-
-int n_lines;
 
 void
 handle_events(bool *running)
@@ -58,40 +56,6 @@ draw_point_big(SDL_Renderer *renderer, int x, int y)
   SDL_RenderDrawPoint(renderer, x + 1, y);
   SDL_RenderDrawPoint(renderer, x, y - 1);
   SDL_RenderDrawPoint(renderer, x, y + 1);
-}
-
-void
-draw_image(code_image_set_t *code_image_set,
-           code_dream_image_t *image,
-           SDL_Renderer *renderer)
-{
-  double min_dist = code_image_set->font_width / 1000.0;
-  double max_dist = code_image_set->font_width / 10.0;
-  double speed = (max_dist - min_dist) / (double)total_time;
-  int t2 = t % total_time;
-  double dist = max_dist - t2 * speed;
-  double code_width = code_image_set->font_width * 80;
-  int zoom_y = code_image_set->font_height * line_to_zoom_under;
-  SDL_Rect rect;
-  rect.x = SCREEN_WIDTH / 2 + (-code_width / 2 + image->x) / dist;
-  rect.y = SCREEN_HEIGHT / 2 + (-zoom_y + image->y) / dist;
-  rect.x += rand() % 3 + 1;
-  rect.y += rand() % 3 + 1;
-  rect.w = image->w / dist;
-  rect.h = image->h / dist;
-  SDL_RenderCopy(renderer, image->image, NULL, &rect);
-}
-
-void
-draw_lines(code_image_set_t *code_image_set,
-           code_dream_image_t **images,
-           SDL_Renderer *renderer)
-{
-  int i = 0;
-  for (i = 0; i < code_image_set->n_images; ++i)
-    {
-      draw_image(code_image_set, images[i], renderer);
-    }
 }
 
 void
@@ -119,7 +83,8 @@ draw_loading(SDL_Renderer *renderer)
 }
 
 void
-draw(code_image_set_t *code_image_set, SDL_Renderer *renderer)
+draw(code_dream_code_display_set_t *displays,
+     code_image_set_t *code_image_set, SDL_Renderer *renderer)
 {
   if (code_image_set_loading(code_image_set))
     {
@@ -133,7 +98,7 @@ draw(code_image_set_t *code_image_set, SDL_Renderer *renderer)
         }
       SDL_SetRenderDrawColor(renderer, 46, 52, 53, 255);
       SDL_RenderClear(renderer);
-      draw_lines(code_image_set, code_image_set->images, renderer);
+      code_dream_code_display_set_draw(displays, renderer);
     }
 
   SDL_RenderPresent(renderer);
@@ -166,11 +131,18 @@ main (int argc, char *argv[])
       SDL_Quit();
       exit(0);
     }
+  code_dream_code_display_set_t *displays =
+    code_dream_code_display_set_create(code_image_set);
   bool running = true;
   while (running)
     {
       handle_events(&running);
-      draw(code_image_set, renderer);
+      if (displays->n_displays == 0)
+        {
+          code_dream_code_display_set_add_display(displays);
+        }
+      code_dream_code_display_set_update(displays);
+      draw(displays, code_image_set, renderer);
       SDL_Delay(20);
       ++t;
     }
