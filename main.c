@@ -140,6 +140,11 @@ main (int argc, char *argv[])
       if (displays->n_displays == 0)
         {
           code_dream_code_display_set_add_display(displays);
+          code_dream_code_display_set_add_display(displays);
+          displays->displays[1]->dist =
+            (displays->displays[1]->max_dist +
+             displays->displays[1]->min_dist)
+            / 2.0;
         }
       code_dream_code_display_set_update(displays);
       draw(displays, code_image_set, renderer);
