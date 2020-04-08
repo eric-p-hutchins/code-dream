@@ -18,7 +18,7 @@
 #ifndef CODE_DREAM_CODE_DISPLAY_SET_H
 #define CODE_DREAM_CODE_DISPLAY_SET_H
 
-#include "SDL2/SDL_render.h"
+#include "SDL2/SDL_video.h"
 
 #include "code-dream-code-display.h"
 #include "code-image-set.h"
@@ -37,7 +37,7 @@ code_dream_code_display_set_create(code_image_set_t *code_image_set);
 
 void
 code_dream_code_display_set_draw(code_dream_code_display_set_t *set,
-                                 SDL_Renderer *renderer);
+                                 SDL_Window *window);
 
 void
 code_dream_code_display_set_update(code_dream_code_display_set_t *set);

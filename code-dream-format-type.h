@@ -27,7 +27,8 @@ typedef enum
    CODR_TYPE,
    CODR_FUNCTION,
    CODR_IDENTIFIER,
-   CODR_KEYVALUE
+   CODR_KEYVALUE,
+   CODR_COMMENT
   } code_dream_format_type_t;
 
 #endif

@@ -15,10 +15,20 @@
 // You should have received a copy of the GNU General Public License
 // along with Code Dream.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef DEFINES_H
-#define DEFINES_H
+#ifndef CODE_DREAM_OPTIONS_H
+#define CODE_DREAM_OPTIONS_H
 
-#define SCREEN_WIDTH 640
-#define SCREEN_HEIGHT 400
+#include <stdbool.h>
+
+typedef struct code_dream_options_t code_dream_options_t;
+
+struct code_dream_options_t
+{
+  int screen_width;
+  int screen_height;
+  int screen_x;
+  int screen_y;
+  bool fullscreen;
+};
 
 #endif

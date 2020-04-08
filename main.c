@@ -21,12 +21,11 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 
-#include "code-source.h"
-#include "code-image-set.h"
-#include "code-dream-image.h"
 #include "code-dream-code-display-set.h"
-
-#include "defines.h"
+#include "code-dream-image.h"
+#include "code-dream-options.h"
+#include "code-image-set.h"
+#include "code-source.h"
 
 int t = 0;
 
@@ -59,36 +58,41 @@ draw_point_big(SDL_Renderer *renderer, int x, int y)
 }
 
 void
-draw_loading(SDL_Renderer *renderer)
+draw_loading(SDL_Window *window)
 {
+  int screen_width, screen_height;
+  SDL_GetWindowSize(window, &screen_width, &screen_height);
+  SDL_Renderer *renderer = SDL_GetRenderer(window);
   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
   SDL_RenderClear(renderer);
 
   SDL_SetRenderDrawColor(renderer, 224, 224, 224, 255);
-  int x = SCREEN_WIDTH / 2 + 20 * cos(t / 8.0);
-  int y = SCREEN_HEIGHT / 2 + 20 * sin(t / 8.0);
+  int x = screen_width / 2 + 20 * cos(t / 8.0);
+  int y = screen_height / 2 + 20 * sin(t / 8.0);
   draw_point_big(renderer, x, y);
   SDL_SetRenderDrawColor(renderer, 160, 160, 160, 255);
-  x = SCREEN_WIDTH / 2 + 20 * cos(t / 8.0 - 0.3);
-  y = SCREEN_HEIGHT / 2 + 20 * sin(t / 8.0 - 0.3);
+  x = screen_width / 2 + 20 * cos(t / 8.0 - 0.3);
+  y = screen_height / 2 + 20 * sin(t / 8.0 - 0.3);
   draw_point_big(renderer, x, y);
   SDL_SetRenderDrawColor(renderer, 96, 96, 96, 255);
-  x = SCREEN_WIDTH / 2 + 20 * cos(t / 8.0 - 0.6);
-  y = SCREEN_HEIGHT / 2 + 20 * sin(t / 8.0 - 0.6);
+  x = screen_width / 2 + 20 * cos(t / 8.0 - 0.6);
+  y = screen_height / 2 + 20 * sin(t / 8.0 - 0.6);
   draw_point_big(renderer, x, y);
   SDL_SetRenderDrawColor(renderer, 32, 32, 32, 255);
-  x = SCREEN_WIDTH / 2 + 20 * cos(t / 8.0 - 0.9);
-  y = SCREEN_HEIGHT / 2 + 20 * sin(t / 8.0 - 0.9);
+  x = screen_width / 2 + 20 * cos(t / 8.0 - 0.9);
+  y = screen_height / 2 + 20 * sin(t / 8.0 - 0.9);
   draw_point_big(renderer, x, y);
 }
 
 void
 draw(code_dream_code_display_set_t *displays,
-     code_image_set_t *code_image_set, SDL_Renderer *renderer)
+     code_image_set_t *code_image_set,
+     SDL_Window *window)
 {
+  SDL_Renderer *renderer = SDL_GetRenderer(window);
   if (code_image_set_loading(code_image_set))
     {
-      draw_loading(renderer);
+      draw_loading(window);
     }
   else
     {
@@ -98,30 +102,112 @@ draw(code_dream_code_display_set_t *displays,
         }
       SDL_SetRenderDrawColor(renderer, 46, 52, 53, 255);
       SDL_RenderClear(renderer);
-      code_dream_code_display_set_draw(displays, renderer);
+      code_dream_code_display_set_draw(displays, window);
     }
 
   SDL_RenderPresent(renderer);
 }
 
+code_dream_options_t *
+parse_args(int argc, char *argv[])
+{
+  code_dream_options_t *options =
+    (code_dream_options_t*)malloc(sizeof(code_dream_options_t));
+  options->screen_width = 640;
+  options->screen_height = 400;
+  options->screen_x = SDL_WINDOWPOS_CENTERED;
+  options->screen_y = SDL_WINDOWPOS_CENTERED;
+  options->fullscreen = false;
+  int i;
+  for (i = 0; i < argc; ++i)
+    {
+      if (strcmp("-w", argv[i]) == 0)
+        {
+          ++i;
+          char *endptr;
+          long width = strtol(argv[i], &endptr, 10);
+          if (endptr[0] != '\0')
+            {
+              fprintf(stderr, "Error parsing screen width: %s\n", argv[i]);
+            }
+          else
+            {
+              options->screen_width = (int)width;
+            }
+        }
+      else if (strcmp("-h", argv[i]) == 0)
+        {
+          ++i;
+          char *endptr;
+          long height = strtol(argv[i], &endptr, 10);
+          if (endptr[0] != '\0')
+            {
+              fprintf(stderr, "Error parsing screen height: %s\n", argv[i]);
+            }
+          else
+            {
+              options->screen_height = (int)height;
+            }
+        }
+      else if (strcmp("-x", argv[i]) == 0)
+        {
+          ++i;
+          char *endptr;
+          long x = strtol(argv[i], &endptr, 10);
+          if (endptr[0] != '\0')
+            {
+              fprintf(stderr, "Error parsing screen x position: %s\n", argv[i]);
+            }
+          else
+            {
+              options->screen_x = (int)x;
+            }
+        }
+      else if (strcmp("-y", argv[i]) == 0)
+        {
+          ++i;
+          char *endptr;
+          long y = strtol(argv[i], &endptr, 10);
+          if (endptr[0] != '\0')
+            {
+              fprintf(stderr, "Error parsing screen y position: %s\n", argv[i]);
+            }
+          else
+            {
+              options->screen_y = (int)y;
+            }
+        }
+      else if (strcmp("-f", argv[i]) == 0)
+        {
+          options->fullscreen = true;
+        }
+    }
+  return options;
+}
+
 int
 main (int argc, char *argv[])
 {
+  code_dream_options_t *options = parse_args(argc, argv);
   code_source_t *code_source = code_source_create();
   SDL_Init(SDL_INIT_VIDEO);
   TTF_Init();
   const char *title = "Code Dream";
-  bool fullscreen = false;
-  if (fullscreen)
+  if (options->fullscreen)
     {
       SDL_SetRelativeMouseMode(SDL_TRUE);
     }
+  int screen_width = 640;
+  int screen_height = 400;
   SDL_Window *window = SDL_CreateWindow(title,
-                                        SDL_WINDOWPOS_CENTERED,
-                                        SDL_WINDOWPOS_CENTERED,
-                                        SCREEN_WIDTH, SCREEN_HEIGHT,
-                                        (fullscreen ? SDL_WINDOW_FULLSCREEN : 0)
-                                        | SDL_WINDOW_OPENGL);
+                                        options->screen_x,
+                                        options->screen_y,
+                                        options->screen_width,
+                                        options->screen_height,
+                                        (options->fullscreen
+                                         ? SDL_WINDOW_FULLSCREEN : 0)
+                                        | SDL_WINDOW_OPENGL
+                                        | SDL_WINDOW_BORDERLESS);
   SDL_Renderer *renderer =
     SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC);
   code_image_set_t *code_image_set =
@@ -137,17 +223,27 @@ main (int argc, char *argv[])
   while (running)
     {
       handle_events(&running);
-      if (displays->n_displays == 0)
+      if (!code_image_set_loading(code_image_set))
         {
-          code_dream_code_display_set_add_display(displays);
-          code_dream_code_display_set_add_display(displays);
-          displays->displays[1]->dist =
-            (displays->displays[1]->max_dist +
-             displays->displays[1]->min_dist)
-            / 2.0;
+          if (displays->n_displays == 0)
+            {
+              code_dream_code_display_set_add_display(displays);
+
+              code_dream_code_display_set_add_display(displays);
+              double dist_range =
+                displays->displays[1]->max_dist +
+                displays->displays[1]->min_dist;
+              displays->displays[1]->dist =
+                displays->displays[1]->min_dist
+                + dist_range * 2 / 3.0;
+              code_dream_code_display_set_add_display(displays);
+              displays->displays[2]->dist =
+                displays->displays[2]->min_dist
+                + dist_range / 3.0;
+            }
         }
       code_dream_code_display_set_update(displays);
-      draw(displays, code_image_set, renderer);
+      draw(displays, code_image_set, window);
       SDL_Delay(20);
       ++t;
     }

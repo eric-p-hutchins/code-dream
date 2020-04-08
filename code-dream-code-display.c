@@ -17,8 +17,6 @@
 
 #include "code-dream-code-display.h"
 
-#include "defines.h"
-
 code_dream_code_display_t *
 code_dream_code_display_create(code_image_set_t *images)
 {
@@ -26,9 +24,9 @@ code_dream_code_display_create(code_image_set_t *images)
     (code_dream_code_display_t *)malloc(sizeof(code_dream_code_display_t));
   display->images = images;
   display->line_to_zoom_under = rand() % images->n_lines;
-  display->total_time = 240;
+  display->total_time = 300;
   display->min_dist = images->font_width / 1000.0;
-  display->max_dist = images->font_width / 10.0;
+  display->max_dist = images->font_width / 5.0;
   display->speed = (display->max_dist - display->min_dist) / (double)display->total_time;
   display->dist = display->max_dist;
   return display;
@@ -50,23 +48,32 @@ void
 code_dream_code_display_draw_image(code_dream_code_display_t *display,
                                    code_image_set_t *code_image_set,
                                    code_dream_image_t *image,
-                                   SDL_Renderer *renderer)
+                                   SDL_Window *window)
 {
+  int screen_width, screen_height;
+  SDL_GetWindowSize(window, &screen_width, &screen_height);
   double code_width = code_image_set->font_width * 80;
   int zoom_y = code_image_set->font_height * display->line_to_zoom_under;
   SDL_Rect rect;
-  rect.x = SCREEN_WIDTH / 2 + (-code_width / 2 + image->x) / display->dist;
-  rect.y = SCREEN_HEIGHT / 2 + (-zoom_y + image->y) / display->dist;
+  rect.x = screen_width / 2 + (-code_width / 2 + image->x) / display->dist;
+  rect.y = screen_height / 2 + (-zoom_y + image->y) / display->dist;
   rect.x += rand() % 3 + 1;
   rect.y += rand() % 3 + 1;
   rect.w = image->w / display->dist;
   rect.h = image->h / display->dist;
+  double dist_range = display->max_dist - display->min_dist;
+  int alpha = (dist_range - (display->dist - display->min_dist)) / dist_range
+    * 256;
+  if (alpha < 0) alpha = 0;
+  if (alpha > 255) alpha = 255;
+  SDL_SetTextureAlphaMod(image->image, alpha);
+  SDL_Renderer *renderer = SDL_GetRenderer(window);
   SDL_RenderCopy(renderer, image->image, NULL, &rect);
 }
 
 void
 code_dream_code_display_draw(code_dream_code_display_t *display,
-                             SDL_Renderer *renderer)
+                             SDL_Window *window)
 {
   int i = 0;
   for (i = 0; i < display->images->n_images; ++i)
@@ -75,6 +82,6 @@ code_dream_code_display_draw(code_dream_code_display_t *display,
       code_dream_code_display_draw_image(display,
                                          display->images,
                                          image,
-                                         renderer);
+                                         window);
     }
 }

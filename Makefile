@@ -6,7 +6,8 @@ HEADERS = \
  code-dream-char-info.h \
  code-dream-format-type.h \
  code-dream-code-display-set.h \
- code-dream-code-display.h
+ code-dream-code-display.h \
+ code-dream-options.h
 
 SOURCES = \
  main.c \

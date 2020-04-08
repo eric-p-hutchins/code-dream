@@ -25,6 +25,7 @@ SDL_Color CODR_TYPE_COLOR = {141,196,255};
 SDL_Color CODR_FUNC_COLOR = {252,233,79};
 SDL_Color CODR_KEYWORD_COLOR = {180,249,112};
 SDL_Color CODR_KEYVALUE_COLOR = {232,178,227};
+SDL_Color CODR_COMMENT_COLOR = {116,210,24};
 
 code_image_set_t *
 code_image_set_create(code_source_t *code_source, SDL_Renderer *renderer)
@@ -95,6 +96,9 @@ code_image_set_create_image(code_image_set_t *code_image_set,
       break;
     case CODR_KEYVALUE:
       color = CODR_KEYVALUE_COLOR;
+      break;
+    case CODR_COMMENT:
+      color = CODR_COMMENT_COLOR;
       break;
     default:
       color = CODR_DEFAULT_COLOR;

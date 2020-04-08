@@ -30,13 +30,13 @@ code_dream_code_display_set_create(code_image_set_t *code_image_set)
 
 void
 code_dream_code_display_set_draw(code_dream_code_display_set_t *set,
-                                 SDL_Renderer *renderer)
+                                 SDL_Window *window)
 {
   int i;
   for (i = 0; i < set->n_displays; ++i)
     {
       code_dream_code_display_draw(set->displays[i],
-                                   renderer);
+                                   window);
     }
 }
 

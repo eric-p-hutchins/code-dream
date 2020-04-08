@@ -60,6 +60,10 @@ code_source_emacs_type_to_code_dream_type(const char *emacs_type)
     {
       return CODR_KEYVALUE;
     }
+  else if (strcmp(emacs_type, "font-lock-comment-face") == 0)
+    {
+      return CODR_COMMENT;
+    }
   return CODR_NORMAL;
 }
 

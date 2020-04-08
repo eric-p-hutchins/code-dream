@@ -18,7 +18,7 @@
 #ifndef CODE_DREAM_CODE_DISPLAY_H
 #define CODE_DREAM_CODE_DISPLAY_H
 
-#include "SDL2/SDL_render.h"
+#include "SDL2/SDL_video.h"
 #include "code-image-set.h"
 
 typedef struct code_dream_code_display_t code_dream_code_display_t;
@@ -42,6 +42,6 @@ code_dream_code_display_update(code_dream_code_display_t *display);
 
 void
 code_dream_code_display_draw(code_dream_code_display_t *display,
-                             SDL_Renderer *renderer);
+                             SDL_Window *window);
 
 #endif

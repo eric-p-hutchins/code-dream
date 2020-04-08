@@ -25,7 +25,20 @@ Build
 
 Run
 ---
+
     ./code-dream
+
+Set resolution.
+
+    ./code-dream -w 800 -h 600
+
+Set position.
+
+    ./code-dream -x 0 -y 0
+
+Specify fullscreen.
+
+    ./code-dream -f
 
 TODO
 ----
@@ -41,5 +54,5 @@ TODO
 * Make a way to export to .mov directly so that I don't need to screen
   record to actually get the background video
 * More interesting effects than the character jiggling
-    * The next piece of code in the distance of the current one,
-      blurred as if coming into focus as we zoom past the current one
+    * ~~The next piece of code in the distance of the current one,
+      blurred as if coming into focus as we zoom past the current one~~
