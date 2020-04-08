@@ -29,10 +29,6 @@
 
 int t = 0;
 
-int total_time = 240;
-
-int line_to_zoom_under = 100;
-
 void
 handle_events(bool *running)
 {
@@ -96,16 +92,42 @@ draw(code_dream_code_display_set_t *displays,
     }
   else
     {
-      if (t % total_time == 0)
-        {
-          line_to_zoom_under = rand() % code_image_set->n_lines;
-        }
       SDL_SetRenderDrawColor(renderer, 46, 52, 53, 255);
       SDL_RenderClear(renderer);
       code_dream_code_display_set_draw(displays, window);
     }
 
   SDL_RenderPresent(renderer);
+}
+
+bool
+parse_int_arg(int argc,
+              char *argv[],
+              const char *option,
+              const char *option_name,
+              int *i,
+              int *ptr)
+{
+  if (strcmp(option, argv[*i]) == 0)
+    {
+      ++*i;
+      if (*i >= argc)
+        {
+          fprintf(stderr, "Error: no %s given\n", option_name);
+        }
+      char *endptr;
+      long value = strtol(argv[*i], &endptr, 10);
+      if (endptr[0] != '\0')
+        {
+          fprintf(stderr, "Error parsing %s: %s\n", option_name, argv[*i]);
+        }
+      else
+        {
+          *ptr = (int)value;
+        }
+      return true;
+    }
+  return false;
 }
 
 code_dream_options_t *
@@ -118,78 +140,70 @@ parse_args(int argc, char *argv[])
   options->screen_x = SDL_WINDOWPOS_CENTERED;
   options->screen_y = SDL_WINDOWPOS_CENTERED;
   options->fullscreen = false;
+  options->filename = NULL;
   int i;
-  for (i = 0; i < argc; ++i)
+  for (i = 1; i < argc; ++i)
     {
-      if (strcmp("-w", argv[i]) == 0)
+      if (parse_int_arg(argc, argv, "-w", "screen width", &i,
+                        &options->screen_width))
         {
-          ++i;
-          char *endptr;
-          long width = strtol(argv[i], &endptr, 10);
-          if (endptr[0] != '\0')
-            {
-              fprintf(stderr, "Error parsing screen width: %s\n", argv[i]);
-            }
-          else
-            {
-              options->screen_width = (int)width;
-            }
+          continue;
         }
-      else if (strcmp("-h", argv[i]) == 0)
+      else if (parse_int_arg(argc, argv, "-h", "screen height", &i,
+                             &options->screen_height))
         {
-          ++i;
-          char *endptr;
-          long height = strtol(argv[i], &endptr, 10);
-          if (endptr[0] != '\0')
-            {
-              fprintf(stderr, "Error parsing screen height: %s\n", argv[i]);
-            }
-          else
-            {
-              options->screen_height = (int)height;
-            }
+          continue;
         }
-      else if (strcmp("-x", argv[i]) == 0)
+      else if (parse_int_arg(argc, argv, "-x", "screen x position", &i,
+                             &options->screen_x))
         {
-          ++i;
-          char *endptr;
-          long x = strtol(argv[i], &endptr, 10);
-          if (endptr[0] != '\0')
-            {
-              fprintf(stderr, "Error parsing screen x position: %s\n", argv[i]);
-            }
-          else
-            {
-              options->screen_x = (int)x;
-            }
+          continue;
         }
-      else if (strcmp("-y", argv[i]) == 0)
+      else if (parse_int_arg(argc, argv, "-y", "screen y position", &i,
+                             &options->screen_y))
         {
-          ++i;
-          char *endptr;
-          long y = strtol(argv[i], &endptr, 10);
-          if (endptr[0] != '\0')
-            {
-              fprintf(stderr, "Error parsing screen y position: %s\n", argv[i]);
-            }
-          else
-            {
-              options->screen_y = (int)y;
-            }
+          continue;
         }
       else if (strcmp("-f", argv[i]) == 0)
         {
           options->fullscreen = true;
         }
+      else
+        {
+          if (options->filename == NULL)
+            {
+              options->filename = argv[i];
+              printf("setting filename to %s\n", argv[i]);
+            }
+        }
     }
   return options;
 }
+
+char *help_text = "Usage: code-dream [OPTION]... [filename]\n"
+  "\n"
+  "Display animated source code... for backgrounds and stuff.\n"
+  "\n"
+  "Options:\n"
+  "  -f                              set fullscreen\n"
+  "  -h                              set screen height\n"
+  "  -w                              set screen width\n"
+  "  -x                              set screen x position\n"
+  "  -y                              set screen y position\n"
+  "\n"
+  "The filename is the file that the code will be taken from.\n";
 
 int
 main (int argc, char *argv[])
 {
   code_dream_options_t *options = parse_args(argc, argv);
-  code_source_t *code_source = code_source_create();
+  if (options->filename == NULL)
+    {
+      fprintf(stderr, "Error: no filename given\n");
+      fprintf(stderr, "%s", help_text);
+      return 0;
+    }
+  code_source_t *code_source = code_source_create(options->filename);
   SDL_Init(SDL_INIT_VIDEO);
   TTF_Init();
   const char *title = "Code Dream";

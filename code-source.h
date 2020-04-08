@@ -26,7 +26,7 @@ struct code_source_t {
   char *filename;
 };
 
-code_source_t *code_source_create();
+code_source_t *code_source_create(const char *filename);
 code_dream_char_info_set_t *code_source_get_char_info_set(code_source_t *code_source);
 
 #endif

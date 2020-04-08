@@ -26,19 +26,19 @@ Build
 Run
 ---
 
-    ./code-dream
+    ./code-dream main.c
 
 Set resolution.
 
-    ./code-dream -w 800 -h 600
+    ./code-dream -w 800 -h 600 main.c
 
 Set position.
 
-    ./code-dream -x 0 -y 0
+    ./code-dream -x 0 -y 0 main.c
 
 Specify fullscreen.
 
-    ./code-dream -f
+    ./code-dream -f main.c
 
 TODO
 ----

@@ -29,6 +29,7 @@ struct code_dream_options_t
   int screen_x;
   int screen_y;
   bool fullscreen;
+  char *filename;
 };
 
 #endif

@@ -22,10 +22,10 @@
 #include "code-source.h"
 
 code_source_t *
-code_source_create()
+code_source_create(const char *filename)
 {
   code_source_t *code_source = (code_source_t*)malloc(sizeof(code_source_t));
-  code_source->filename = "./main.c";
+  code_source->filename = strdup(filename);
   return code_source;
 }
 
