@@ -28,7 +28,8 @@ SDL_Color CODR_KEYVALUE_COLOR = {232,178,227};
 SDL_Color CODR_COMMENT_COLOR = {116,210,24};
 
 code_image_set_t *
-code_image_set_create(code_source_t *code_source, SDL_Renderer *renderer)
+code_image_set_create(code_source_t *code_source,
+                      SDL_Renderer *renderer)
 {
   code_image_set_t *code_image_set =
     (code_image_set_t*)malloc(sizeof(code_image_set_t));
@@ -118,7 +119,9 @@ code_image_set_create_image(code_image_set_t *code_image_set,
   SDL_Texture *texture =
     SDL_CreateTextureFromSurface(code_image_set->renderer, char_surface);
   code_dream_image_t *image =
-    code_dream_image_create(texture,
+    code_dream_image_create(char_info->c,
+                            char_info->type,
+                            texture,
                             code_image_set->font_width * char_info->col,
                             code_image_set->font_height * (char_info->row - 1),
                             char_surface->w,
@@ -126,28 +129,56 @@ code_image_set_create_image(code_image_set_t *code_image_set,
   return image;
 }
 
+code_dream_image_t *
+code_image_set_get_char_image(code_image_set_t *set,
+                              char c,
+                              code_dream_format_type_t type)
+{
+  int i;
+  for (i = 0; i < set->n_images; ++i)
+    {
+      if (set->images[i]->c == c && set->images[i]->type == type)
+        {
+          return set->images[i];
+        }
+    }
+  return NULL;
+}
+
 int
 code_image_set_load(void *data)
 {
   code_image_set_t *code_image_set = (code_image_set_t *)data;
 
-  code_dream_char_info_set_t *set =
-    code_source_get_char_info_set(code_image_set->code_source);
-  code_image_set->n_lines = set->n_lines;
+  code_dream_char_info_set_t **sets;
+  size_t n_sets;
+  code_source_get_char_info_sets(code_image_set->code_source, &sets, &n_sets);
 
-  int i = 0;
-  for(i = 0; i < set->n_infos; ++i)
+  int i, j;
+  for (j = 0; j < n_sets; ++j)
     {
-      code_dream_image_t *image = code_image_set_create_image(code_image_set,
-                                                              set->infos[i]);
-      ++code_image_set->n_images;
-      code_image_set->images =
-        (code_dream_image_t **)realloc(code_image_set->images,
-                                       sizeof(code_dream_image_t*)
-                                       * code_image_set->n_images);
-      code_image_set->images[code_image_set->n_images - 1] = image;
+      code_dream_char_info_set_t *set = sets[j];
+      for(i = 0; i < set->n_infos; ++i)
+        {
+          code_dream_image_t *image =
+            code_image_set_get_char_image(code_image_set,
+                                          set->infos[i]->c,
+                                          set->infos[i]->type);
+          // If the image with character and type doesn't exist yet,
+          // then create it
+          if (image == NULL)
+            {
+              image = code_image_set_create_image(code_image_set,
+                                                  set->infos[i]);
+              ++code_image_set->n_images;
+              code_image_set->images =
+                (code_dream_image_t **)realloc(code_image_set->images,
+                                               sizeof(code_dream_image_t*)
+                                               * code_image_set->n_images);
+              code_image_set->images[code_image_set->n_images - 1] = image;
+            }
+        }
     }
-
   code_image_set->loaded = true;
   return 0;
 }

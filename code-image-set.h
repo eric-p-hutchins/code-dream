@@ -37,17 +37,22 @@ struct code_image_set_t
   TTF_Font *font;
   int font_width;
   int font_height;
-  int n_lines;
   bool loaded;
 };
 
 code_image_set_t *
-code_image_set_create(code_source_t *code_source, SDL_Renderer *renderer);
+code_image_set_create(code_source_t *code_source,
+                      SDL_Renderer *renderer);
 
 bool
 code_image_set_loading(code_image_set_t *code_image_set);
 
 int
 code_image_set_load(void *data);
+
+code_dream_image_t *
+code_image_set_get_char_image(code_image_set_t *set,
+                              char c,
+                              code_dream_format_type_t type);
 
 #endif

@@ -173,7 +173,6 @@ parse_args(int argc, char *argv[])
           if (options->filename == NULL)
             {
               options->filename = argv[i];
-              printf("setting filename to %s\n", argv[i]);
             }
         }
     }
@@ -191,7 +190,9 @@ char *help_text = "Usage: code-dream [OPTION]... [filename]\n"
   "  -x                              set screen x position\n"
   "  -y                              set screen y position\n"
   "\n"
-  "The filename is the file that the code will be taken from.\n";
+  "The filename is the file that the code will be taken from.\n"
+  "If filename is a directory then it will use any code files it\n"
+  "finds in that directory (recursively).";
 
 int
 main (int argc, char *argv[])
@@ -204,6 +205,10 @@ main (int argc, char *argv[])
       return 0;
     }
   code_source_t *code_source = code_source_create(options->filename);
+  if (code_source == NULL)
+    {
+      return 0;
+    }
   SDL_Init(SDL_INIT_VIDEO);
   TTF_Init();
   const char *title = "Code Dream";
@@ -211,8 +216,6 @@ main (int argc, char *argv[])
     {
       SDL_SetRelativeMouseMode(SDL_TRUE);
     }
-  int screen_width = 640;
-  int screen_height = 400;
   SDL_Window *window = SDL_CreateWindow(title,
                                         options->screen_x,
                                         options->screen_y,
@@ -232,7 +235,7 @@ main (int argc, char *argv[])
       exit(0);
     }
   code_dream_code_display_set_t *displays =
-    code_dream_code_display_set_create(code_image_set);
+    code_dream_code_display_set_create(code_source, code_image_set);
   bool running = true;
   while (running)
     {
@@ -255,8 +258,8 @@ main (int argc, char *argv[])
                 displays->displays[2]->min_dist
                 + dist_range / 3.0;
             }
+          code_dream_code_display_set_update(displays);
         }
-      code_dream_code_display_set_update(displays);
       draw(displays, code_image_set, window);
       SDL_Delay(20);
       ++t;

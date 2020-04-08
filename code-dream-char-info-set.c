@@ -24,6 +24,7 @@ code_dream_char_info_set_create()
     (code_dream_char_info_set_t*)malloc(sizeof(code_dream_char_info_set_t));
   set->n_infos = 0;
   set->infos = NULL;
+  set->n_lines = 0;
   return set;
 }
 

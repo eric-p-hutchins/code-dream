@@ -20,10 +20,14 @@
 
 #include <SDL2/SDL_render.h>
 
+#include "code-dream-format-type.h"
+
 typedef struct code_dream_image_t code_dream_image_t;
 
 struct code_dream_image_t
 {
+  char c;
+  code_dream_format_type_t type;
   SDL_Texture *image;
   int x;
   int y;
@@ -31,7 +35,9 @@ struct code_dream_image_t
   int h;
 };
 
-code_dream_image_t *code_dream_image_create(SDL_Texture *image,
+code_dream_image_t *code_dream_image_create(char c,
+                                            code_dream_format_type_t type,
+                                            SDL_Texture *image,
                                             int x,
                                             int y,
                                             int w,

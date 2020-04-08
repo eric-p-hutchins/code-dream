@@ -18,14 +18,28 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <dirent.h>
 
 #include "code-source.h"
+
+void code_source_load_char_info_sets(code_source_t *code_source,
+                                     const char *filename);
 
 code_source_t *
 code_source_create(const char *filename)
 {
   code_source_t *code_source = (code_source_t*)malloc(sizeof(code_source_t));
   code_source->filename = strdup(filename);
+  code_source->sets = NULL;
+  code_source->n_sets = 0;
+  code_source_load_char_info_sets(code_source, code_source->filename);
+  if (code_source->n_sets == 0)
+    {
+      fprintf(stderr,
+              "Error: No source code found at file or directory %s\n",
+              code_source->filename);
+      return NULL;
+    }
   return code_source;
 }
 
@@ -80,30 +94,33 @@ code_source_emacs_type_to_code_dream_type(const char *emacs_type)
 }
 
 code_dream_char_info_set_t *
-code_source_get_char_info_set(code_source_t *code_source)
+code_source_get_char_info_set(code_source_t *code_source,
+                              const char *filename)
 {
   code_dream_char_info_set_t *set = code_dream_char_info_set_create();
   char *command = (char*)malloc(strlen("./highlight.el ")
-                                + strlen(code_source->filename)
+                                + strlen(filename)
                                 + strlen(" > ")
-                                + strlen(code_source->filename)
+                                + strlen(filename)
                                 + strlen(".txt")
                                 + 1);
   strcpy(command, "./highlight.el ");
-  strcat(command, code_source->filename);
+  strcat(command, filename);
   strcat(command, " > ");
-  strcat(command, code_source->filename);
+  strcat(command, filename);
   strcat(command, ".txt");
   if (system(command) == -1)
     {
+      free(command);
       fprintf(stderr, "Error running highlight.el to generate syntax highlight information");
       return set;
     }
-  char *filename =
-    (char*)malloc(strlen(code_source->filename + strlen(".txt") + 1));
-  strcpy(filename, code_source->filename);
-  strcat(filename, ".txt");
-  FILE *file = fopen(filename, "r");
+  free(command);
+  char *info_filename =
+    (char*)malloc(strlen(filename) + strlen(".txt") + 1);
+  strcpy(info_filename, filename);
+  strcat(info_filename, ".txt");
+  FILE *file = fopen(info_filename, "r");
   if (file != NULL)
     {
       int row = 1;
@@ -134,7 +151,101 @@ code_source_get_char_info_set(code_source_t *code_source)
           ++col;
         }
       set->n_lines = row - 1;
+      fclose(file);
     }
-  fclose(file);
+  else
+    {
+      fprintf(stderr, "Failed to open file %s\n", info_filename);
+    }
+  free(info_filename);
+  if (set->n_lines == 0)
+    {
+      code_dream_char_info_set_destroy(set);
+      return NULL;
+    }
   return set;
+}
+
+void
+code_source_add_char_info_set(code_source_t *code_source,
+                              code_dream_char_info_set_t *char_info_set)
+{
+  ++code_source->n_sets;
+  size_t size = sizeof(code_dream_char_info_set_t*) * code_source->n_sets;
+  code_source->sets =
+    (code_dream_char_info_set_t**)realloc(code_source->sets, size);
+  code_source->sets[code_source->n_sets - 1] = char_info_set;
+}
+
+void
+code_source_load_char_info_sets(code_source_t *code_source,
+                                const char *filename)
+{
+  DIR *dir = opendir(filename);
+  if (dir == NULL)
+    {
+      code_dream_char_info_set_t *char_info_set =
+        code_source_get_char_info_set(code_source, filename);
+      if (char_info_set != NULL)
+        {
+          code_source_add_char_info_set(code_source, char_info_set);
+        }
+      return;
+    }
+
+  struct dirent *ent = readdir(dir);
+  while (ent != NULL)
+    {
+      if (ent->d_type == DT_DIR
+          && strcmp(".", ent->d_name) != 0
+          && strcmp("..", ent->d_name) != 0)
+        {
+          char *ent_path = (char*)malloc(strlen(filename)
+                                         + strlen("/")
+                                         + strlen(ent->d_name)
+                                         + 1);
+          strcpy(ent_path, filename);
+          strcat(ent_path, "/");
+          strcat(ent_path, ent->d_name);
+          code_source_load_char_info_sets(code_source, ent_path);
+        }
+      else if (strlen(ent->d_name) > 2
+               && ((ent->d_name[strlen(ent->d_name) - 1] == 'c'
+                    && ent->d_name[strlen(ent->d_name) - 2] == '.')
+                   || (ent->d_name[strlen(ent->d_name) - 1] == 'h'
+                       && ent->d_name[strlen(ent->d_name) - 2] == '.')
+                   || (strlen(ent->d_name) > 5
+                       && ent->d_name[strlen(ent->d_name) - 1] == 'a'
+                       && ent->d_name[strlen(ent->d_name) - 2] == 'v'
+                       && ent->d_name[strlen(ent->d_name) - 3] == 'a'
+                       && ent->d_name[strlen(ent->d_name) - 4] == 'j'
+                       && ent->d_name[strlen(ent->d_name) - 5] == '.')))
+        {
+          char *ent_path = (char*)malloc(strlen(filename)
+                                         + strlen("/")
+                                         + strlen(ent->d_name)
+                                         + 1);
+          strcpy(ent_path, filename);
+          strcat(ent_path, "/");
+          strcat(ent_path, ent->d_name);
+          code_source_load_char_info_sets(code_source, ent_path);
+        }
+      ent = readdir(dir);
+    }
+  closedir(dir);
+}
+
+void
+code_source_get_char_info_sets(code_source_t *code_source,
+                               code_dream_char_info_set_t ***sets_ptr,
+                               size_t *n_sets_ptr)
+{
+  if (sets_ptr != NULL)
+    {
+      *sets_ptr = code_source->sets;
+    }
+  if (n_sets_ptr != NULL)
+    {
+      *n_sets_ptr = code_source->n_sets;
+    }
 }

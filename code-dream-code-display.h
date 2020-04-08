@@ -19,13 +19,16 @@
 #define CODE_DREAM_CODE_DISPLAY_H
 
 #include "SDL2/SDL_video.h"
+
+#include "code-dream-char-info-set.h"
 #include "code-image-set.h"
 
 typedef struct code_dream_code_display_t code_dream_code_display_t;
 
 struct code_dream_code_display_t
 {
-  code_image_set_t *images;
+  code_dream_char_info_set_t *char_info_set;
+  code_image_set_t *code_image_set;
   int line_to_zoom_under;
   int total_time;
   double min_dist;
@@ -35,7 +38,8 @@ struct code_dream_code_display_t
 };
 
 code_dream_code_display_t *
-code_dream_code_display_create(code_image_set_t *images);
+code_dream_code_display_create(code_dream_char_info_set_t *char_info_set,
+                               code_image_set_t *code_image_set);
 
 void
 code_dream_code_display_update(code_dream_code_display_t *display);
@@ -43,5 +47,8 @@ code_dream_code_display_update(code_dream_code_display_t *display);
 void
 code_dream_code_display_draw(code_dream_code_display_t *display,
                              SDL_Window *window);
+
+void
+code_dream_code_display_destroy(code_dream_code_display_t *display);
 
 #endif

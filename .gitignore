@@ -1,4 +1,5 @@
 code-dream
 *.c.txt
+*.h.txt
 *.o
 *~

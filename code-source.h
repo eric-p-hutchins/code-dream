@@ -24,9 +24,15 @@ typedef struct code_source_t code_source_t;
 
 struct code_source_t {
   char *filename;
+  size_t n_sets;
+  code_dream_char_info_set_t **sets;
 };
 
 code_source_t *code_source_create(const char *filename);
-code_dream_char_info_set_t *code_source_get_char_info_set(code_source_t *code_source);
+
+void
+code_source_get_char_info_sets(code_source_t *code_source,
+                               code_dream_char_info_set_t ***sets_ptr,
+                               size_t *n_sets_ptr);
 
 #endif

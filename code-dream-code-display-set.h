@@ -22,18 +22,21 @@
 
 #include "code-dream-code-display.h"
 #include "code-image-set.h"
+#include "code-source.h"
 
 typedef struct code_dream_code_display_set_t code_dream_code_display_set_t;
 
 struct code_dream_code_display_set_t
 {
+  code_source_t *code_source;
   code_image_set_t *code_image_set;
   int n_displays;
   code_dream_code_display_t **displays;
 };
 
 code_dream_code_display_set_t *
-code_dream_code_display_set_create(code_image_set_t *code_image_set);
+code_dream_code_display_set_create(code_source_t *code_source,
+                                   code_image_set_t *code_image_set);
 
 void
 code_dream_code_display_set_draw(code_dream_code_display_set_t *set,
