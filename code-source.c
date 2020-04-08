@@ -68,6 +68,14 @@ code_source_emacs_type_to_code_dream_type(const char *emacs_type)
     {
       return CODR_COMMENT;
     }
+  else if (strcmp(emacs_type, "font-lock-doc-face") == 0)
+    {
+      return CODR_STRING;
+    }
+  else if (strcmp(emacs_type, "c-annotation-face") == 0)
+    {
+      return CODR_KEYVALUE;
+    }
   return CODR_NORMAL;
 }
 
