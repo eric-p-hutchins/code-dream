@@ -20,6 +20,7 @@
 #include <string.h>
 #include <dirent.h>
 
+#include "config.h"
 #include "code-source.h"
 
 void code_source_load_char_info_sets(code_source_t *code_source,
@@ -98,13 +99,15 @@ code_source_get_char_info_set(code_source_t *code_source,
                               const char *filename)
 {
   code_dream_char_info_set_t *set = code_dream_char_info_set_create();
-  char *command = (char*)malloc(strlen("./highlight.el ")
+  char *command = (char*)malloc(strlen(EMACS)
+                                + strlen(" --script ./highlight.el ")
                                 + strlen(filename)
                                 + strlen(" > ")
                                 + strlen(filename)
                                 + strlen(".txt")
                                 + 1);
-  strcpy(command, "./highlight.el ");
+  strcpy(command, EMACS);
+  strcat(command, " --script ./highlight.el ");
   strcat(command, filename);
   strcat(command, " > ");
   strcat(command, filename);

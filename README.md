@@ -17,36 +17,48 @@ Build Dependencies
 ------------------
 
   - gcc
-  - SDL
+  - SDL2
+  - SDL2_ttf
 
 Build
 -----
+
+If from a git clone, generate the scripts:
+
+    autoreconf -i
+
+Then:
+
+    ./configure
     make
 
 Run
 ---
 
-    ./code-dream main.c
+    src/code-dream main.c
 
 Run for a directory.
 
-    ./code-dream .
+    src/code-dream .
 
 Set resolution.
 
-    ./code-dream -w 800 -h 600 main.c
+    src/code-dream -w 800 -h 600 main.c
 
 Set position.
 
-    ./code-dream -x 0 -y 0 main.c
+    src/code-dream -x 0 -y 0 main.c
 
 Specify fullscreen.
 
-    ./code-dream -f main.c
+    src/code-dream -f main.c
 
 TODO
 ----
 
+* Be able to run from other locations than the source directory
+    * Properly search for highlight.el from the program directory instead of assuming it's in the working directory
+* Support a proper install (via `make install`) so that highlight.el goes in /usr/share (or equivalent) and code-dream knows where it is
 * Support proper list of file suffixes for directory searching instead of just .c, .h, and .java
 * Optimize loading of code
     * Possibly make the emacs script run on all found code files at once
