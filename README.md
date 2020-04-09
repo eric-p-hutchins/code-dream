@@ -56,23 +56,41 @@ Specify fullscreen.
 TODO
 ----
 
+* Put the highlight information in a temporary directory or get the
+  output in memory somehow instead of littering the actual source code
+  directory with .txt files
+
 * Be able to run from other locations than the source directory
-    * Properly search for highlight.el from the program directory instead of assuming it's in the working directory
-* Support a proper install (via `make install`) so that highlight.el goes in /usr/share (or equivalent) and code-dream knows where it is
-* Support proper list of file suffixes for directory searching instead of just .c, .h, and .java
+
+    * Properly search for highlight.el from the program directory
+      instead of assuming it's in the working directory
+
+* Support a proper install (via `make install`) so that highlight.el
+  goes in /usr/share (or equivalent) and code-dream knows where it is
+
+* Support proper list of file suffixes for directory searching instead
+  of just .c, .h, and .java
+
 * Optimize loading of code
     * Possibly make the emacs script run on all found code files at once
     * Possibly replace the emacs script somehow
+
 * Configuration options for zoom level, maximum distance, speed, etc.
+
 * Make it not zoom to empty space so much (know how big the line is
   and zoom to the middle of the line)
+
 * Don't move randomly
     * Random is too random and can do the same spot too
       often. Instead, jump through the source in some regular pattern
       so that a variety is seen
+
 * Make a way to export to .mov directly so that I don't need to screen
   record to actually get the background video
+
 * ~~Ability to use multiple files and possibly specify directories to use~~
+
 * More interesting effects than the character jiggling
+
     * ~~The next piece of code in the distance of the current one,
       blurred as if coming into focus as we zoom past the current one~~
