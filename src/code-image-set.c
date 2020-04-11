@@ -153,6 +153,10 @@ int
 code_image_set_load(void *data)
 {
   code_image_set_t *code_image_set = (code_image_set_t *)data;
+  while (code_source_loading(code_image_set->code_source))
+    {
+      ;
+    }
 
   code_dream_char_info_set_t **sets;
   size_t n_sets;

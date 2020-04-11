@@ -20,11 +20,15 @@
 #include <string.h>
 #include <dirent.h>
 
+#include "SDL2/SDL_thread.h"
+
 #include "config.h"
 #include "code-source.h"
 
 void code_source_load_char_info_sets(code_source_t *code_source,
                                      const char *filename);
+
+int code_source_load(void *data);
 
 code_source_t *
 code_source_create(const char *filename)
@@ -33,14 +37,11 @@ code_source_create(const char *filename)
   code_source->filename = strdup(filename);
   code_source->sets = NULL;
   code_source->n_sets = 0;
-  code_source_load_char_info_sets(code_source, code_source->filename);
-  if (code_source->n_sets == 0)
-    {
-      fprintf(stderr,
-              "Error: No source code found at file or directory %s\n",
-              code_source->filename);
-      return NULL;
-    }
+  code_source->loaded = false;
+
+  SDL_Thread *thread =
+    SDL_CreateThread(code_source_load, "code_source_load", code_source);
+  SDL_DetachThread(thread);
   return code_source;
 }
 
@@ -236,6 +237,27 @@ code_source_load_char_info_sets(code_source_t *code_source,
       ent = readdir(dir);
     }
   closedir(dir);
+}
+
+bool
+code_source_loading(code_source_t *code_source)
+{
+  return !code_source->loaded;
+}
+
+int
+code_source_load(void *data)
+{
+  code_source_t *code_source = (code_source_t*)data;
+  code_source_load_char_info_sets(code_source, code_source->filename);
+  if (code_source->n_sets == 0)
+    {
+      fprintf(stderr,
+              "Error: No source code found at file or directory %s\n",
+              code_source->filename);
+    }
+  code_source->loaded = true;
+  return 0;
 }
 
 void

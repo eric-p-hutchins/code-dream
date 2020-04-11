@@ -69,10 +69,6 @@ TODO
 * Support a proper install (via `make install`) so that highlight.el
   goes in /usr/share (or equivalent) and code-dream knows where it is
 
-* Show the loading screen while code is loading, not just while images
-  are being generated. (The reason the loading screen was originally
-  for that was because that part used to be more inefficient)
-
 * Support proper list of file suffixes for directory searching instead
   of just .c, .h, and .java
 
@@ -117,14 +113,18 @@ TODO
       often. Instead, jump through the source in some regular pattern
       so that a variety is seen
 
+* Use a more efficient structure for `code_image_set_t` so that it can fetch
+  requested images (by character and color) without having to scan through
+  all of them.
+
+* ~~Show the loading screen while code is loading, not just while images
+  are being generated. (The reason the loading screen was originally
+  for that was because that part used to be more inefficient)~~
+
 * ~~Allow setting generated GIF file name~~
 
 * ~~Fix GIF color maps to use whatever colors it needs instead of using
   grayscale~~
-
-* Use a more efficient structure for `code_image_set_t` so that it can fetch
-  requested images (by character and color) without having to scan through
-  all of them.
 
 * ~~Make a way to export to animated .gif~~
 

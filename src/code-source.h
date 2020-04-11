@@ -18,11 +18,14 @@
 #ifndef CODE_SOURCE_H
 #define CODE_SOURCE_H
 
+#include <stdbool.h>
+
 #include "code-dream-char-info-set.h"
 
 typedef struct code_source_t code_source_t;
 
 struct code_source_t {
+  bool loaded;
   char *filename;
   size_t n_sets;
   code_dream_char_info_set_t **sets;
@@ -34,5 +37,7 @@ void
 code_source_get_char_info_sets(code_source_t *code_source,
                                code_dream_char_info_set_t ***sets_ptr,
                                size_t *n_sets_ptr);
+
+bool code_source_loading(code_source_t *code_source);
 
 #endif

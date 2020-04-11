@@ -47,12 +47,14 @@ handle_events(bool *running)
 void
 draw(code_dream_code_display_set_t *displays,
      code_dream_loading_screen_t *loading_screen,
+     code_source_t *code_source,
      code_image_set_t *code_image_set,
      SDL_Window *window,
      code_dream_gif_writer_t *gif_writer)
 {
   SDL_Renderer *renderer = SDL_GetRenderer(window);
-  if (code_image_set_loading(code_image_set))
+  if (code_source_loading(code_source)
+      || code_image_set_loading(code_image_set))
     {
       code_dream_loading_screen_draw(loading_screen);
     }
@@ -71,11 +73,13 @@ draw(code_dream_code_display_set_t *displays,
 }
 
 void
-update(code_image_set_t *code_image_set,
+update(code_source_t *code_source,
+       code_image_set_t *code_image_set,
        code_dream_loading_screen_t *loading_screen,
        code_dream_code_display_set_t *displays)
 {
-  if (code_image_set_loading(code_image_set))
+  if (code_source_loading(code_source)
+      || code_image_set_loading(code_image_set))
     {
       code_dream_loading_screen_update(loading_screen);
     }
@@ -289,10 +293,6 @@ main (int argc, char *argv[])
       return 0;
     }
   code_source_t *code_source = code_source_create(options->filename);
-  if (code_source == NULL)
-    {
-      return 0;
-    }
   SDL_Init(SDL_INIT_VIDEO);
   TTF_Init();
   const char *title = "Code Dream";
@@ -344,11 +344,13 @@ main (int argc, char *argv[])
   while (running)
     {
       handle_events(&running);
-      update(code_image_set,
+      update(code_source,
+             code_image_set,
              loading_screen,
              displays);
       draw(displays,
            loading_screen,
+           code_source,
            code_image_set,
            window,
            gif_writer);
