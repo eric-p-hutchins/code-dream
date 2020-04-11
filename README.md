@@ -111,6 +111,10 @@ TODO
           used colors and find closest color each pixel for each frame.
     * Try doing the same as the above but for each frame and use a
       color map per frame.
+        * This will not use as much memory since it doesn't need to save the
+          frames (unlike when trying to make a global color map) but the
+          resulting file will be bigger (because it needs to write a color
+          map for each frame)
 
 * ~~Fix GIF color maps to use whatever colors it needs instead of using
   grayscale~~
