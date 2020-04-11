@@ -44,18 +44,10 @@ struct code_dream_gif_writer_priv_t
 };
 
 code_dream_gif_writer_t *
-code_dream_gif_writer_create(code_source_t *code_source,
+code_dream_gif_writer_create(const char *filename,
+                             code_source_t *code_source,
                              int screen_width,
                              int screen_height);
-
-SDL_Renderer *
-code_dream_gif_writer_get_renderer(code_dream_gif_writer_t *writer);
-
-SDL_Surface *
-code_dream_gif_writer_get_surface(code_dream_gif_writer_t *writer);
-
-code_image_set_t *
-code_dream_gif_writer_get_code_image_set(code_dream_gif_writer_t *writer);
 
 void
 code_dream_gif_writer_draw_frame(code_dream_gif_writer_t *writer,

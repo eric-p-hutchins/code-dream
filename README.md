@@ -78,6 +78,10 @@ TODO
     * Possibly make the emacs script run on all found code files at once
     * Possibly replace the emacs script somehow
 
+* Show the loading screen while code is loading, not just while images
+  are being generated. (The reason the loading screen was originally
+  for that was because that part used to be more inefficient)
+
 * Configuration options for zoom level, maximum distance, speed, etc.
 
 * Make it not zoom to empty space so much (know how big the line is
@@ -88,13 +92,35 @@ TODO
       often. Instead, jump through the source in some regular pattern
       so that a variety is seen
 
-* Allow setting generated GIF file name
+* ~~Allow setting generated GIF file name~~
 
-* Fix GIF color maps to use whatever colors it needs instead of using
-  grayscale
+* Allow the user to specify a theme
+    * Currently the theme used is `'tango-dark` and the colors themselves
+      are hard-coded into the program in various places.
+    * If we get these colors from `emacs` instead in the script then we
+      can allow the user to specify a `--theme` and pass that along to
+      emacs.
+
+* Try different methods or creating GIF color maps:
+    * Collect stats of colors used in every frame
+        * Initialize a `48M * sizeof(long)` array indexed by color value
+          (`0x000000` to `0xFFFFFF`) and increment the value for every pixel
+          for every frame
+        * Save frames in memory until the end
+        * At the end, generate the global color map according to the most
+          used colors and find closest color each pixel for each frame.
+    * Try doing the same as the above but for each frame and use a
+      color map per frame.
+
+* ~~Fix GIF color maps to use whatever colors it needs instead of using
+  grayscale~~
 
 * Make a way to export to .mov directly so that I don't need to screen
   record to actually get the background video
+
+* Use a more efficient structure for `code_image_set_t` so that it can fetch
+  requested images (by character and color) without having to scan through
+  all of them.
 
 * ~~Make a way to export to animated .gif~~
 

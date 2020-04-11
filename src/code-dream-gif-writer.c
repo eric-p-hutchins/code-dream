@@ -17,8 +17,31 @@
 
 #include "code-dream-gif-writer.h"
 
+void
+code_dream_gif_writer_color_map_gradient(GifColorType *colors,
+                                         SDL_Color color1,
+                                         SDL_Color color2,
+                                         int index,
+                                         int count)
+{
+  int i;
+  for (i = 0; i < count; ++i)
+    {
+      int r = ((color1.r * (count - 1 - i) + color2.r * i))
+        / (count - 1);
+      int g = ((color1.g * (count - 1 - i) + color2.g * i))
+        / (count - 1);
+      int b = ((color1.b * (count - 1 - i) + color2.b * i))
+        / (count - 1);
+      colors[index + i].Red = r;
+      colors[index + i].Green = g;
+      colors[index + i].Blue = b;
+    }
+}
+
 code_dream_gif_writer_t *
-code_dream_gif_writer_create(code_source_t *code_source,
+code_dream_gif_writer_create(const char *filename,
+                             code_source_t *code_source,
                              int screen_width,
                              int screen_height)
 {
@@ -48,7 +71,7 @@ code_dream_gif_writer_create(code_source_t *code_source,
     }
 
   int error;
-  priv->gif_file = EGifOpenFileName("test.gif", false, &error);
+  priv->gif_file = EGifOpenFileName(filename, false, &error);
   if (priv->gif_file == NULL)
     {
       fprintf (stderr, "error: %d\n", error);
@@ -56,11 +79,94 @@ code_dream_gif_writer_create(code_source_t *code_source,
       return NULL;
     }
 
+  SDL_Color CODR_BACKGROUND_COLOR = {46, 52, 53};
+  SDL_Color CODR_DEFAULT_COLOR = {238,238,236};
+  SDL_Color CODR_PREPROC_COLOR = {223,144,214};
+  SDL_Color CODR_STRING_COLOR = {233,185,110};
+  SDL_Color CODR_VAR_COLOR = {252,175,61};
+  SDL_Color CODR_TYPE_COLOR = {141,196,255};
+  SDL_Color CODR_FUNC_COLOR = {252,233,79};
+  SDL_Color CODR_KEYWORD_COLOR = {180,249,112};
+  SDL_Color CODR_KEYVALUE_COLOR = {232,178,227};
+  SDL_Color CODR_COMMENT_COLOR = {116,210,24};
+
   GifColorType *colors = malloc(sizeof(GifColorType) * 256);
+  colors[0] = (GifColorType){CODR_DEFAULT_COLOR.r,
+                             CODR_DEFAULT_COLOR.g,
+                             CODR_DEFAULT_COLOR.b};
+  colors[1] = (GifColorType){CODR_PREPROC_COLOR.r,
+                             CODR_PREPROC_COLOR.g,
+                             CODR_PREPROC_COLOR.b};
+  colors[2] = (GifColorType){CODR_STRING_COLOR.r,
+                             CODR_STRING_COLOR.g,
+                             CODR_STRING_COLOR.b};
+  colors[3] = (GifColorType){CODR_VAR_COLOR.r,
+                             CODR_VAR_COLOR.g,
+                             CODR_VAR_COLOR.b};
+  colors[4] = (GifColorType){CODR_TYPE_COLOR.r,
+                             CODR_TYPE_COLOR.g,
+                             CODR_TYPE_COLOR.b};
+  colors[5] = (GifColorType){CODR_FUNC_COLOR.r,
+                             CODR_FUNC_COLOR.g,
+                             CODR_FUNC_COLOR.b};
+  colors[6] = (GifColorType){CODR_KEYWORD_COLOR.r,
+                             CODR_KEYWORD_COLOR.g,
+                             CODR_KEYWORD_COLOR.b};
+  colors[7] = (GifColorType){CODR_KEYVALUE_COLOR.r,
+                             CODR_KEYVALUE_COLOR.g,
+                             CODR_KEYVALUE_COLOR.b};
+  colors[8] = (GifColorType){CODR_COMMENT_COLOR.r,
+                             CODR_COMMENT_COLOR.g,
+                             CODR_COMMENT_COLOR.b};
+  code_dream_gif_writer_color_map_gradient(colors,
+                                           CODR_DEFAULT_COLOR,
+                                           CODR_BACKGROUND_COLOR,
+                                           9,
+                                           27);
+  code_dream_gif_writer_color_map_gradient(colors,
+                                           CODR_PREPROC_COLOR,
+                                           CODR_BACKGROUND_COLOR,
+                                           36,
+                                           27);
+  code_dream_gif_writer_color_map_gradient(colors,
+                                           CODR_STRING_COLOR,
+                                           CODR_BACKGROUND_COLOR,
+                                           63,
+                                           27);
+  code_dream_gif_writer_color_map_gradient(colors,
+                                           CODR_VAR_COLOR,
+                                           CODR_BACKGROUND_COLOR,
+                                           90,
+                                           27);
+  code_dream_gif_writer_color_map_gradient(colors,
+                                           CODR_TYPE_COLOR,
+                                           CODR_BACKGROUND_COLOR,
+                                           117,
+                                           27);
+  code_dream_gif_writer_color_map_gradient(colors,
+                                           CODR_FUNC_COLOR,
+                                           CODR_BACKGROUND_COLOR,
+                                           144,
+                                           27);
+  code_dream_gif_writer_color_map_gradient(colors,
+                                           CODR_KEYWORD_COLOR,
+                                           CODR_BACKGROUND_COLOR,
+                                           171,
+                                           27);
+  code_dream_gif_writer_color_map_gradient(colors,
+                                           CODR_KEYVALUE_COLOR,
+                                           CODR_BACKGROUND_COLOR,
+                                           198,
+                                           27);
+  code_dream_gif_writer_color_map_gradient(colors,
+                                           CODR_COMMENT_COLOR,
+                                           CODR_BACKGROUND_COLOR,
+                                           225,
+                                           27);
   int i;
-  for (i = 0; i < 256; ++i)
+  for (i = 252; i < 256; ++i)
     {
-      colors[i] = (GifColorType){i, i, i};
+      colors[i] = (GifColorType){0, 0, 0};
     }
   ColorMapObject *color_map = GifMakeMapObject(256, colors);
 
@@ -77,28 +183,32 @@ code_dream_gif_writer_create(code_source_t *code_source,
   return writer;
 }
 
-SDL_Renderer *
-code_dream_gif_writer_get_renderer(code_dream_gif_writer_t *writer)
+int
+code_dream_gif_writer_find_closest_color(ColorMapObject *ColorMap,
+                                         int r, int g, int b)
 {
-  code_dream_gif_writer_priv_t *priv =
-    (code_dream_gif_writer_priv_t*)writer->priv;
-  return priv->renderer;
-}
+  // Grayscale
+  // int v = (r + g + b) / 3;
+  // return v;
 
-SDL_Surface *
-code_dream_gif_writer_get_surface(code_dream_gif_writer_t *writer)
-{
-  code_dream_gif_writer_priv_t *priv =
-    (code_dream_gif_writer_priv_t*)writer->priv;
-  return priv->surface;
-}
-
-code_image_set_t *
-code_dream_gif_writer_get_code_image_set(code_dream_gif_writer_t *writer)
-{
-  code_dream_gif_writer_priv_t *priv =
-    (code_dream_gif_writer_priv_t*)writer->priv;
-  return priv->code_image_set;
+  int v = 0;
+  int min_dist =
+    abs(r - ColorMap->Colors[0].Red)
+    + abs(g - ColorMap->Colors[0].Green)
+    + abs(b - ColorMap->Colors[0].Blue);
+  int i;
+  for (i = 0; i < ColorMap->ColorCount; ++i)
+    {
+      GifColorType color = ColorMap->Colors[i];
+      int dist =
+        abs(r - color.Red) + abs(g - color.Green) + abs(b - color.Blue);
+      if (dist < min_dist)
+        {
+          min_dist = dist;
+          v = i;
+        }
+    }
+  return v;
 }
 
 void
@@ -195,7 +305,9 @@ code_dream_gif_writer_draw_frame(code_dream_gif_writer_t *writer,
           int r = pixels[i * surface->pitch + j * 3];
           int g = pixels[i * surface->pitch + j * 3 + 1];
           int b = pixels[i * surface->pitch + j * 3 + 2];
-          int v = (r + g + b) / 3;
+          int v =
+            code_dream_gif_writer_find_closest_color(priv->gif_file->SColorMap,
+                                                     r, g, b);
           image.RasterBits[i * surface->w + j] = v;
         }
     }

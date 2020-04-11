@@ -131,6 +131,49 @@ parse_int_arg(int argc,
   return false;
 }
 
+bool
+parse_string_arg(int argc,
+                 char *argv[],
+                 const char *short_option,
+                 const char *long_option,
+                 const char *option_name,
+                 int *i,
+                 char **ptr)
+{
+  if ((short_option != NULL && strcmp(short_option, argv[*i]) == 0)
+      || (long_option != NULL && strcmp(long_option, argv[*i]) == 0))
+    {
+      ++*i;
+      if (*i >= argc)
+        {
+          fprintf(stderr, "Error: no %s given\n", option_name);
+        }
+      *ptr = strdup(argv[*i]);
+      return true;
+    }
+  return false;
+}
+
+bool
+ends_with(char *str, char *suffix)
+{
+  int suffix_len = strlen(suffix);
+  int str_len = strlen(str);
+  if (str_len < suffix_len)
+    {
+      return false;
+    }
+  int i;
+  for (i = 0; i < suffix_len; ++i)
+    {
+      if (str[str_len - 1 - i] != suffix[suffix_len - 1 - i])
+        {
+          return false;
+        }
+    }
+  return true;
+}
+
 code_dream_options_t *
 parse_args(int argc, char *argv[])
 {
@@ -144,7 +187,7 @@ parse_args(int argc, char *argv[])
   options->fullscreen = false;
   options->filename = NULL;
   options->help = false;
-  options->generate_gif = false;
+  options->output = NULL;
   int i;
   for (i = 1; i < argc; ++i)
     {
@@ -173,10 +216,18 @@ parse_args(int argc, char *argv[])
         {
           options->fullscreen = true;
         }
-      else if (strcmp("-g", argv[i]) == 0
-               || strcmp("--generate-gif", argv[i]) == 0)
+      else if (parse_string_arg(argc, argv, "-o", "--output",
+                                "output", &i,
+                                &options->output))
         {
-          options->generate_gif = true;
+          if (!ends_with(options->output, ".gif"))
+            {
+              fprintf(stderr, "%s\n",
+                      "warning: output ignored. Only GIF is supported.");
+              free(options->output);
+              options->output = NULL;
+            }
+          continue;
         }
       else if (strcmp("-h", argv[i]) == 0
                || strcmp("--help", argv[i]) == 0)
@@ -204,9 +255,10 @@ char *help_text = "Usage: code-dream [OPTION]... [filename]\n"
   "\n"
   "Options:\n"
   "  -f, --fullscreen                set fullscreen.\n"
-  "  -g, --generate-gif              generate animated GIF called test.gif.\n"
   "      --height                    set screen height.\n"
   "  -h, --help                      display this help and exit.\n"
+  "  -o, --output                    generate output file.\n"
+  "                                    only GIF is currently supported.\n"
   "      --version                   display version information and exit.\n"
   "      --width                     set screen width.\n"
   "  -x                              set screen x position.\n"
@@ -267,10 +319,11 @@ main (int argc, char *argv[])
       SDL_Quit();
       exit(0);
     }
-  if (options->generate_gif)
+  if (options->output != NULL)
     {
       gif_writer =
-        code_dream_gif_writer_create(code_source,
+        code_dream_gif_writer_create(options->output,
+                                     code_source,
                                      options->screen_width,
                                      options->screen_height);
     }
@@ -303,7 +356,7 @@ main (int argc, char *argv[])
       ++t;
     }
 
-  if (options->generate_gif)
+  if (options->output != NULL)
     {
       code_dream_gif_writer_write_gif(gif_writer);
       code_dream_gif_writer_destroy(gif_writer);

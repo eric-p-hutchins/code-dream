@@ -31,7 +31,7 @@ struct code_dream_options_t
   bool help;
   bool version;
   bool fullscreen;
-  bool generate_gif;
+  char *output;
   char *filename;
 };
 
