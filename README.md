@@ -61,8 +61,6 @@ TODO
   output in memory somehow instead of littering the actual source code
   directory with .txt files
 
-* Allow using arbitrary font choices, possibly installed on the system
-
 * Be able to run from other locations than the source directory
 
     * Properly search for highlight.el and the font from the program
@@ -71,28 +69,12 @@ TODO
 * Support a proper install (via `make install`) so that highlight.el
   goes in /usr/share (or equivalent) and code-dream knows where it is
 
-* Support proper list of file suffixes for directory searching instead
-  of just .c, .h, and .java
-
-* Optimize loading of code
-    * Possibly make the emacs script run on all found code files at once
-    * Possibly replace the emacs script somehow
-
 * Show the loading screen while code is loading, not just while images
   are being generated. (The reason the loading screen was originally
   for that was because that part used to be more inefficient)
 
-* Configuration options for zoom level, maximum distance, speed, etc.
-
-* Make it not zoom to empty space so much (know how big the line is
-  and zoom to the middle of the line)
-
-* Don't move randomly
-    * Random is too random and can do the same spot too
-      often. Instead, jump through the source in some regular pattern
-      so that a variety is seen
-
-* ~~Allow setting generated GIF file name~~
+* Support proper list of file suffixes for directory searching instead
+  of just .c, .h, and .java
 
 * Allow the user to specify a theme
     * Currently the theme used is `'tango-dark` and the colors themselves
@@ -116,11 +98,29 @@ TODO
           resulting file will be bigger (because it needs to write a color
           map for each frame)
 
-* ~~Fix GIF color maps to use whatever colors it needs instead of using
-  grayscale~~
-
 * Make a way to export to .mov directly so that I don't need to screen
   record to actually get the background video
+
+* Allow using arbitrary font choices, possibly installed on the system
+
+* Optimize loading of code
+    * Possibly make the emacs script run on all found code files at once
+    * Possibly replace the emacs script somehow
+
+* Configuration options for zoom level, maximum distance, speed, etc.
+
+* Make it not zoom to empty space so much (know how big the line is
+  and zoom to the middle of the line)
+
+* Don't move randomly
+    * Random is too random and can do the same spot too
+      often. Instead, jump through the source in some regular pattern
+      so that a variety is seen
+
+* ~~Allow setting generated GIF file name~~
+
+* ~~Fix GIF color maps to use whatever colors it needs instead of using
+  grayscale~~
 
 * Use a more efficient structure for `code_image_set_t` so that it can fetch
   requested images (by character and color) without having to scan through
