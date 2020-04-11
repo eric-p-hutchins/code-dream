@@ -1,4 +1,4 @@
-AC_INIT([code-dream],[0.0.1],[eric.p.hutchins@gmail.com])
+AC_INIT([code-dream],[0.0.2],[eric.p.hutchins@gmail.com])
 AC_CONFIG_SRCDIR([src/code-dream-options.h])
 AC_CONFIG_HEADERS([src/config.h])
 
@@ -10,6 +10,7 @@ AM_PATH_SDL2([2.0.0])
 
 AC_CHECK_LIB([SDL2_ttf],[TTF_OpenFont],[LIBS="$LIBS -lSDL2_ttf"])
 
+AC_CHECK_LIB([gif],[EGifSpew],[LIBS="$LIBS -lgif"])
 
 AC_PATH_PROG([EMACS], [emacs])
 AC_ARG_VAR([EMACS],[location of emacs])

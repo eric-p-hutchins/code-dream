@@ -118,6 +118,10 @@ code_image_set_create_image(code_image_set_t *code_image_set,
     }
   SDL_Texture *texture =
     SDL_CreateTextureFromSurface(code_image_set->renderer, char_surface);
+  if (texture == NULL)
+    {
+      fprintf(stderr, "Error creating texture: %s\n", SDL_GetError());
+    }
   code_dream_image_t *image =
     code_dream_image_create(char_info->c,
                             char_info->type,
@@ -179,6 +183,19 @@ code_image_set_load(void *data)
             }
         }
     }
+  TTF_CloseFont(code_image_set->font);
   code_image_set->loaded = true;
   return 0;
+}
+
+void
+code_image_set_destroy(code_image_set_t *code_image_set)
+{
+  int i;
+  for (i = 0; i < code_image_set->n_images; ++i)
+    {
+      code_dream_image_destroy(code_image_set->images[i]);
+    }
+  free(code_image_set->images);
+  free(code_image_set);
 }

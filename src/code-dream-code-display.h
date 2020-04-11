@@ -18,7 +18,7 @@
 #ifndef CODE_DREAM_CODE_DISPLAY_H
 #define CODE_DREAM_CODE_DISPLAY_H
 
-#include "SDL2/SDL_video.h"
+#include "SDL2/SDL_render.h"
 
 #include "code-dream-char-info-set.h"
 #include "code-image-set.h"
@@ -35,18 +35,22 @@ struct code_dream_code_display_t
   double max_dist;
   double speed;
   double dist;
+  int screen_width;
+  int screen_height;
 };
 
 code_dream_code_display_t *
 code_dream_code_display_create(code_dream_char_info_set_t *char_info_set,
-                               code_image_set_t *code_image_set);
+                               code_image_set_t *code_image_set,
+                               int screen_width,
+                               int screen_height);
 
 void
 code_dream_code_display_update(code_dream_code_display_t *display);
 
 void
 code_dream_code_display_draw(code_dream_code_display_t *display,
-                             SDL_Window *window);
+                             SDL_Renderer *renderer);
 
 void
 code_dream_code_display_destroy(code_dream_code_display_t *display);

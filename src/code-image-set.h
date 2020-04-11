@@ -55,4 +55,7 @@ code_image_set_get_char_image(code_image_set_t *set,
                               char c,
                               code_dream_format_type_t type);
 
+void
+code_image_set_destroy(code_image_set_t *set);
+
 #endif

@@ -43,4 +43,7 @@ code_dream_image_t *code_dream_image_create(char c,
                                             int w,
                                             int h);
 
+void
+code_dream_image_destroy(code_dream_image_t *image);
+
 #endif

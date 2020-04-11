@@ -8,17 +8,14 @@ background. But I'm sure there could be other uses.
 
 ![Sample](/sample.gif)
 
-Runtime Dependencies
---------------------
-
-  - Emacs
-
-Build Dependencies
-------------------
+Dependencies
+------------
 
   - gcc
+  - Emacs
   - SDL2
   - SDL2_ttf
+  - libgif
 
 Build
 -----
@@ -37,13 +34,13 @@ Run
 
     src/code-dream main.c
 
-Run for a directory.
+Run for all code found in a directory.
 
     src/code-dream .
 
 Set resolution.
 
-    src/code-dream -w 800 -h 600 main.c
+    src/code-dream --width 800 --height 600 main.c
 
 Set position.
 
@@ -53,6 +50,10 @@ Specify fullscreen.
 
     src/code-dream -f main.c
 
+Generate an animated GIF (currently in grayscale and always called `test.gif`).
+
+    src/code-dream -g main.c
+
 TODO
 ----
 
@@ -60,10 +61,12 @@ TODO
   output in memory somehow instead of littering the actual source code
   directory with .txt files
 
+* Allow using arbitrary font choices, possibly installed on the system
+
 * Be able to run from other locations than the source directory
 
-    * Properly search for highlight.el from the program directory
-      instead of assuming it's in the working directory
+    * Properly search for highlight.el and the font from the program
+      directory instead of assuming it's in the working directory
 
 * Support a proper install (via `make install`) so that highlight.el
   goes in /usr/share (or equivalent) and code-dream knows where it is
@@ -85,8 +88,15 @@ TODO
       often. Instead, jump through the source in some regular pattern
       so that a variety is seen
 
+* Allow setting generated GIF file name
+
+* Fix GIF color maps to use whatever colors it needs instead of using
+  grayscale
+
 * Make a way to export to .mov directly so that I don't need to screen
   record to actually get the background video
+
+* ~~Make a way to export to animated .gif~~
 
 * ~~Ability to use multiple files and possibly specify directories to use~~
 

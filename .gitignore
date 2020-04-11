@@ -1,3 +1,4 @@
+.DS_Store
 autoscan.log
 compile
 config.log
@@ -21,4 +22,6 @@ code-dream
 *.c.txt
 *.h.txt
 *.o
+*.gif
+*.mov
 *~

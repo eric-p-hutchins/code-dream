@@ -19,12 +19,16 @@
 
 code_dream_code_display_set_t *
 code_dream_code_display_set_create(code_source_t *code_source,
-                                   code_image_set_t *code_image_set)
+                                   code_image_set_t *code_image_set,
+                                   int screen_width,
+                                   int screen_height)
 {
   code_dream_code_display_set_t *set =
     (code_dream_code_display_set_t *)malloc(sizeof(code_dream_code_display_set_t));
   set->n_displays = 0;
   set->displays = NULL;
+  set->screen_width = screen_width;
+  set->screen_height = screen_height;
   set->code_source = code_source;
   set->code_image_set = code_image_set;
   return set;
@@ -32,13 +36,13 @@ code_dream_code_display_set_create(code_source_t *code_source,
 
 void
 code_dream_code_display_set_draw(code_dream_code_display_set_t *set,
-                                 SDL_Window *window)
+                                 SDL_Renderer *renderer)
 {
   int i;
   for (i = 0; i < set->n_displays; ++i)
     {
       code_dream_code_display_draw(set->displays[i],
-                                   window);
+                                   renderer);
     }
 }
 
@@ -83,11 +87,26 @@ code_dream_code_display_set_add_display(code_dream_code_display_set_t *set)
 
   code_dream_char_info_set_t *char_info_set = sets[rand() % n_sets];
   code_dream_code_display_t *display =
-    code_dream_code_display_create(char_info_set, set->code_image_set);
+    code_dream_code_display_create(char_info_set,
+                                   set->code_image_set,
+                                   set->screen_width,
+                                   set->screen_height);
   ++set->n_displays;
   set->displays =
     (code_dream_code_display_t**)realloc(set->displays,
                                          sizeof(code_dream_code_display_t*)
                                          * set->n_displays);
   set->displays[set->n_displays - 1] = display;
+}
+
+void
+code_dream_code_display_set_destroy(code_dream_code_display_set_t *set)
+{
+  int i;
+  for (i = 0; i < set->n_displays; ++i)
+    {
+      code_dream_code_display_destroy(set->displays[i]);
+    }
+  free(set->displays);
+  free(set);
 }

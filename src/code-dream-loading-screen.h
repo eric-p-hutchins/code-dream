@@ -15,24 +15,33 @@
 // You should have received a copy of the GNU General Public License
 // along with Code Dream.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef CODE_DREAM_OPTIONS_H
-#define CODE_DREAM_OPTIONS_H
+#ifndef CODE_DREAM_LOADING_SCREEN_H
+#define CODE_DREAM_LOADING_SCREEN_H
 
-#include <stdbool.h>
+#include "SDL_render.h"
 
-typedef struct code_dream_options_t code_dream_options_t;
+typedef struct code_dream_loading_screen_t code_dream_loading_screen_t;
 
-struct code_dream_options_t
+struct code_dream_loading_screen_t
 {
+  SDL_Renderer *renderer;
   int screen_width;
   int screen_height;
-  int screen_x;
-  int screen_y;
-  bool help;
-  bool version;
-  bool fullscreen;
-  bool generate_gif;
-  char *filename;
+  int t;
 };
+
+code_dream_loading_screen_t *
+code_dream_loading_screen_create(SDL_Renderer *renderer,
+                                 int screen_width,
+                                 int screen_height);
+
+void
+code_dream_loading_screen_update(code_dream_loading_screen_t *loading_screen);
+
+void
+code_dream_loading_screen_draw(code_dream_loading_screen_t *loading_screen);
+
+void
+code_dream_loading_screen_destroy(code_dream_loading_screen_t *loading_screen);
 
 #endif

@@ -37,3 +37,10 @@ code_dream_image_create(char c,
   code_dream_image->h = h;
   return code_dream_image;
 }
+
+void
+code_dream_image_destroy(code_dream_image_t *image)
+{
+  SDL_DestroyTexture(image->image);
+  free(image);
+}
