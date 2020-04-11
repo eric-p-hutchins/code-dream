@@ -122,7 +122,7 @@ code_dream_gif_writer_draw_frame(code_dream_gif_writer_t *writer,
   imageDesc.Width = surface->w;
   imageDesc.Height = surface->h;
   imageDesc.Interlace = false;
-  imageDesc.ColorMap = priv->gif_file->SColorMap;
+  imageDesc.ColorMap = NULL;
 
   SavedImage image;
   image.ImageDesc = imageDesc;
