@@ -61,14 +61,6 @@ TODO
   output in memory somehow instead of littering the actual source code
   directory with .txt files
 
-* Be able to run from other locations than the source directory
-
-    * Properly search for highlight.el and the font from the program
-      directory instead of assuming it's in the working directory
-
-* Support a proper install (via `make install`) so that highlight.el
-  goes in /usr/share (or equivalent) and code-dream knows where it is
-
 * Support proper list of file suffixes for directory searching instead
   of just .c, .h, and .java
 
@@ -116,6 +108,14 @@ TODO
 * Use a more efficient structure for `code_image_set_t` so that it can fetch
   requested images (by character and color) without having to scan through
   all of them.
+
+* ~~Support a proper install (via `make install`) so that highlight.el
+  goes in /usr/share (or equivalent) and code-dream knows where it is~~
+
+* ~~Be able to run from other locations than the source directory~~
+
+    * ~~Properly search for highlight.el and the font from the program
+      directory instead of assuming it's in the working directory~~
 
 * ~~Show the loading screen while code is loading, not just while images
   are being generated. (The reason the loading screen was originally

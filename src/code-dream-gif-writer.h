@@ -44,7 +44,8 @@ struct code_dream_gif_writer_priv_t
 };
 
 code_dream_gif_writer_t *
-code_dream_gif_writer_create(const char *filename,
+code_dream_gif_writer_create(const char *basedir,
+                             const char *filename,
                              code_source_t *code_source,
                              int screen_width,
                              int screen_height);

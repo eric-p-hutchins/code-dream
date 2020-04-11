@@ -272,9 +272,31 @@ char *help_text = "Usage: code-dream [OPTION]... [filename]\n"
   "If filename is a directory then it will use any code files it\n"
   "finds in that directory (recursively).";
 
+char *
+get_basedir(const char *path)
+{
+  char *basedir = (char*)malloc(strlen(path));
+  char *last = strrchr(path, '/');
+  if (last == NULL)
+    {
+      if (strcmp(path, "code-dream") == 0)
+        {
+          free(basedir);
+          return strdup(".");
+        }
+      fprintf(stderr, "Error parsing path %s\n", path);
+      free(basedir);
+      return NULL;
+    }
+  strncpy(basedir, path, last - path);
+  basedir[last - path] = '\0';
+  return basedir;
+}
+
 int
 main (int argc, char *argv[])
 {
+  char *basedir = get_basedir(argv[0]);
   code_dream_options_t *options = parse_args(argc, argv);
   if (options->help)
     {
@@ -292,8 +314,12 @@ main (int argc, char *argv[])
       printf("%s\n", help_text);
       return 0;
     }
-  code_source_t *code_source = code_source_create(options->filename);
   SDL_Init(SDL_INIT_VIDEO);
+  code_source_t *code_source = code_source_create(basedir, options->filename);
+  if (code_source == NULL)
+    {
+      return 0;
+    }
   TTF_Init();
   const char *title = "Code Dream";
   if (options->fullscreen)
@@ -309,20 +335,22 @@ main (int argc, char *argv[])
                                          ? SDL_WINDOW_FULLSCREEN : 0)
                                         | SDL_WINDOW_OPENGL
                                         | SDL_WINDOW_BORDERLESS);
-  code_dream_gif_writer_t *gif_writer = NULL;
   SDL_Renderer *renderer =
     SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC);
   code_image_set_t *code_image_set =
-    code_image_set_create(code_source, renderer);
+    code_image_set_create(basedir, code_source, renderer);
   if (code_image_set == NULL)
     {
+      code_source_destroy(code_source);
       SDL_Quit();
       exit(0);
     }
+  code_dream_gif_writer_t *gif_writer = NULL;
   if (options->output != NULL)
     {
       gif_writer =
-        code_dream_gif_writer_create(options->output,
+        code_dream_gif_writer_create(basedir,
+                                     options->output,
                                      code_source,
                                      options->screen_width,
                                      options->screen_height);

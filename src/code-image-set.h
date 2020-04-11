@@ -31,6 +31,7 @@ typedef struct code_image_set_t code_image_set_t;
 struct code_image_set_t
 {
   code_source_t *code_source;
+  char *font_path;
   SDL_Renderer *renderer;
   code_dream_image_t **images;
   int n_images;
@@ -41,7 +42,8 @@ struct code_image_set_t
 };
 
 code_image_set_t *
-code_image_set_create(code_source_t *code_source,
+code_image_set_create(const char *basedir,
+                      code_source_t *code_source,
                       SDL_Renderer *renderer);
 
 bool

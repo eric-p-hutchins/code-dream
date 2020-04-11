@@ -40,7 +40,8 @@ code_dream_gif_writer_color_map_gradient(GifColorType *colors,
 }
 
 code_dream_gif_writer_t *
-code_dream_gif_writer_create(const char *filename,
+code_dream_gif_writer_create(const char *basedir,
+                             const char *filename,
                              code_source_t *code_source,
                              int screen_width,
                              int screen_height)
@@ -58,7 +59,8 @@ code_dream_gif_writer_create(const char *filename,
                                    24,
                                    SDL_PIXELFORMAT_RGB24);
   priv->renderer = SDL_CreateSoftwareRenderer(priv->surface);
-  priv->code_image_set = code_image_set_create(code_source,
+  priv->code_image_set = code_image_set_create(basedir,
+                                               code_source,
                                                priv->renderer);
   if (priv->code_image_set == NULL)
     {

@@ -30,14 +30,50 @@ void code_source_load_char_info_sets(code_source_t *code_source,
 
 int code_source_load(void *data);
 
+extern char *get_basedir(const char *path);
+
 code_source_t *
-code_source_create(const char *filename)
+code_source_create(const char *basedir, const char *filename)
 {
   code_source_t *code_source = (code_source_t*)malloc(sizeof(code_source_t));
   code_source->filename = strdup(filename);
   code_source->sets = NULL;
   code_source->n_sets = 0;
   code_source->loaded = false;
+
+  code_source->highlight_path = (char*)malloc(strlen(basedir)
+                                              + strlen("/highlight.el")
+                                              + 1);
+  strcpy(code_source->highlight_path, basedir);
+  strcat(code_source->highlight_path, "/highlight.el");
+  FILE *file = fopen(code_source->highlight_path, "r");
+  if (file == NULL)
+    {
+      free(code_source->highlight_path);
+      code_source->highlight_path = (char*)malloc(strlen(basedir)
+                                                  + strlen("/../highlight.el")
+                                                  + 1);
+      strcpy(code_source->highlight_path, basedir);
+      strcat(code_source->highlight_path, "/../highlight.el");
+      file = fopen(code_source->highlight_path, "r");
+    }
+  if (file == NULL)
+    {
+      free(code_source->highlight_path);
+      code_source->highlight_path = (char*)malloc(strlen(DATADIR)
+                                                  + strlen("/highlight.el")
+                                                  + 1);
+      strcpy(code_source->highlight_path, DATADIR);
+      strcat(code_source->highlight_path, "/highlight.el");
+      file = fopen(code_source->highlight_path, "r");
+    }
+  if (file == NULL)
+    {
+      fprintf(stderr, "%s\n", "Error: can't find highlight.el");
+      code_source_destroy(code_source);
+      return NULL;
+    }
+  fclose(file);
 
   SDL_Thread *thread =
     SDL_CreateThread(code_source_load, "code_source_load", code_source);
@@ -101,14 +137,18 @@ code_source_get_char_info_set(code_source_t *code_source,
 {
   code_dream_char_info_set_t *set = code_dream_char_info_set_create();
   char *command = (char*)malloc(strlen(EMACS)
-                                + strlen(" --script ./highlight.el ")
+                                + strlen(" --script ")
+                                + strlen(code_source->highlight_path)
+                                + strlen(" ")
                                 + strlen(filename)
                                 + strlen(" > ")
                                 + strlen(filename)
                                 + strlen(".txt")
                                 + 1);
   strcpy(command, EMACS);
-  strcat(command, " --script ./highlight.el ");
+  strcat(command, " --script ");
+  strcat(command, code_source->highlight_path);
+  strcat(command, " ");
   strcat(command, filename);
   strcat(command, " > ");
   strcat(command, filename);
@@ -273,4 +313,17 @@ code_source_get_char_info_sets(code_source_t *code_source,
     {
       *n_sets_ptr = code_source->n_sets;
     }
+}
+
+void
+code_source_destroy(code_source_t *code_source)
+{
+  int i;
+  for (i = 0; i < code_source->n_sets; ++i)
+    {
+      code_dream_char_info_set_destroy(code_source->sets[i]);
+    }
+  free(code_source->filename);
+  free(code_source->highlight_path);
+  free(code_source);
 }

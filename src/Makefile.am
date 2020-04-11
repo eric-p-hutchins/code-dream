@@ -25,6 +25,9 @@ code_dream_SOURCES = \
 code_dream_CFLAGS = $(SDL_CFLAGS)
 code_dream_LDFLAGS = $(SDL_LIBS)
 
-dist_data_DATA = \
+code_dream_datadir = $(datadir)/code-dream
+code_dream_CFLAGS +=  -DDATADIR=\"$(code_dream_datadir)\"
+
+dist_code_dream_data_DATA = \
  ../highlight.el \
  ../DejaVuSansMono.ttf

@@ -28,14 +28,48 @@ SDL_Color CODR_KEYVALUE_COLOR = {232,178,227};
 SDL_Color CODR_COMMENT_COLOR = {116,210,24};
 
 code_image_set_t *
-code_image_set_create(code_source_t *code_source,
+code_image_set_create(const char *basedir,
+                      code_source_t *code_source,
                       SDL_Renderer *renderer)
 {
   code_image_set_t *code_image_set =
     (code_image_set_t*)malloc(sizeof(code_image_set_t));
   code_image_set->code_source = code_source;
   code_image_set->renderer = renderer;
-  code_image_set->font = TTF_OpenFont("DejaVuSansMono.ttf", 128);
+  code_image_set->font_path = (char*)malloc(strlen(basedir)
+                                              + strlen("/DejaVuSansMono.ttf")
+                                              + 1);
+  strcpy(code_image_set->font_path, basedir);
+  strcat(code_image_set->font_path, "/DejaVuSansMono.ttf");
+  FILE *file = fopen(code_image_set->font_path, "r");
+  if (file == NULL)
+    {
+      free(code_image_set->font_path);
+      code_image_set->font_path = (char*)malloc(strlen(basedir)
+                                                + strlen("/../DejaVuSansMono.ttf")
+                                                + 1);
+      strcpy(code_image_set->font_path, basedir);
+      strcat(code_image_set->font_path, "/../DejaVuSansMono.ttf");
+      file = fopen(code_image_set->font_path, "r");
+    }
+  if (file == NULL)
+    {
+      free(code_image_set->font_path);
+      code_image_set->font_path = (char*)malloc(strlen(DATADIR)
+                                                + strlen("/DejaVuSansMono.ttf")
+                                                + 1);
+      strcpy(code_image_set->font_path, DATADIR);
+      strcat(code_image_set->font_path, "/DejaVuSansMono.ttf");
+      file = fopen(code_image_set->font_path, "r");
+    }
+  if (file == NULL)
+    {
+      fprintf(stderr, "%s\n", "Error: can't find DejaVuSansMono.ttf");
+      code_image_set_destroy(code_image_set);
+      return NULL;
+    }
+  fclose(file);
+  code_image_set->font = TTF_OpenFont(code_image_set->font_path, 128);
   if (code_image_set->font == NULL)
     {
       fprintf (stderr, "Couldn't create font: %s\n", TTF_GetError());
@@ -201,5 +235,6 @@ code_image_set_destroy(code_image_set_t *code_image_set)
       code_dream_image_destroy(code_image_set->images[i]);
     }
   free(code_image_set->images);
+  free(code_image_set->font_path);
   free(code_image_set);
 }
