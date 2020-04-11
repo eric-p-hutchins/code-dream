@@ -24,3 +24,7 @@ code_dream_SOURCES = \
 
 code_dream_CFLAGS = $(SDL_CFLAGS)
 code_dream_LDFLAGS = $(SDL_LIBS)
+
+dist_data_DATA = \
+ ../highlight.el \
+ ../DejaVuSansMono.ttf
