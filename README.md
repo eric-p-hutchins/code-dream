@@ -50,9 +50,9 @@ Specify fullscreen.
 
     src/code-dream -f main.c
 
-Generate an animated GIF (currently in grayscale and always called `test.gif`).
+Generate an animated GIF.
 
-    src/code-dream -g main.c
+    src/code-dream -o sample.gif main.c
 
 TODO
 ----
