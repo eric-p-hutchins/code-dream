@@ -144,6 +144,7 @@ parse_args(int argc, char *argv[])
   options->fullscreen = false;
   options->filename = NULL;
   options->help = false;
+  options->generate_gif = false;
   int i;
   for (i = 1; i < argc; ++i)
     {
