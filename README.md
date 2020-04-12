@@ -42,30 +42,30 @@ Any files ending with the following extensions will be recognized
 (chosen somewhat arbitrarily, partly based on having used it or come
 across it before somewhere):
 
-    * `.as`
-    * `.c`
-    * `.c++`
-    * `.cc`
-    * `.cl`
-    * `.coffee`
-    * `.cpp`
-    * `.cs`
-    * `.css`
-    * `.el`
-    * `.go`
-    * `.h`
-    * `.hs`
-    * `.html`
-    * `.java`
-    * `.js`
-    * `.m`
-    * `.mm`
-    * `.pl`
-    * `.py`
-    * `.rb`
-    * `.rs`
-    * `.scm`
-    * `.sh`
+* `.as`
+* `.c`
+* `.c++`
+* `.cc`
+* `.cl`
+* `.coffee`
+* `.cpp`
+* `.cs`
+* `.css`
+* `.el`
+* `.go`
+* `.h`
+* `.hs`
+* `.html`
+* `.java`
+* `.js`
+* `.m`
+* `.mm`
+* `.pl`
+* `.py`
+* `.rb`
+* `.rs`
+* `.scm`
+* `.sh`
 
 Set resolution.
 
