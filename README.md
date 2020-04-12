@@ -57,10 +57,6 @@ Generate an animated GIF.
 TODO
 ----
 
-* Put the highlight information in a temporary directory or get the
-  output in memory somehow instead of littering the actual source code
-  directory with .txt files
-
 * Support proper list of file suffixes for directory searching instead
   of just .c, .h, and .java
 
@@ -111,6 +107,10 @@ TODO
 
 * ~~Support a proper install (via `make install`) so that highlight.el
   goes in /usr/share (or equivalent) and code-dream knows where it is~~
+
+* ~~Put the highlight information in a temporary directory or get the
+  output in memory somehow instead of littering the actual source code
+  directory with .txt files~~
 
 * ~~Be able to run from other locations than the source directory~~
 

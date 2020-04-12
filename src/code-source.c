@@ -141,67 +141,49 @@ code_source_get_char_info_set(code_source_t *code_source,
                                 + strlen(code_source->highlight_path)
                                 + strlen(" ")
                                 + strlen(filename)
-                                + strlen(" > ")
-                                + strlen(filename)
-                                + strlen(".txt")
                                 + 1);
   strcpy(command, EMACS);
   strcat(command, " --script ");
   strcat(command, code_source->highlight_path);
   strcat(command, " ");
   strcat(command, filename);
-  strcat(command, " > ");
-  strcat(command, filename);
-  strcat(command, ".txt");
-  if (system(command) == -1)
+  FILE *output = popen(command, "r");
+  if (output == NULL)
     {
       free(command);
       fprintf(stderr, "Error running highlight.el to generate syntax highlight information");
       return set;
     }
   free(command);
-  char *info_filename =
-    (char*)malloc(strlen(filename) + strlen(".txt") + 1);
-  strcpy(info_filename, filename);
-  strcat(info_filename, ".txt");
-  FILE *file = fopen(info_filename, "r");
-  if (file != NULL)
+  int row = 1;
+  int col = 0;
+  char line[1024];
+  while (fgets(line, 1024, output) != NULL)
     {
-      int row = 1;
-      int col = 0;
-      char line[1024];
-      while (fgets(line, 1024, file) != NULL)
+      char c = line[0];
+      if (c == '\n')
         {
-          char c = line[0];
-          if (c == '\n')
-            {
-              // Read the corresponding 'nil'
-              fgets(line, 1024, file);
-              ++row;
-              col = 0;
-              continue;
-            }
-          if (c != ' ')
-            {
-              char *emacs_type = strdup(line + 2);
-              emacs_type[strlen(emacs_type) - 1] = '\0';
-              code_dream_format_type_t type =
-                code_source_emacs_type_to_code_dream_type(emacs_type);
-              free(emacs_type);
-              code_dream_char_info_t *char_info =
-                code_dream_char_info_create(c, type, row, col);
-              code_dream_char_info_set_add_char(set, char_info);
-            }
-          ++col;
+          // Read the corresponding 'nil'
+          fgets(line, 1024, output);
+          ++row;
+          col = 0;
+          continue;
         }
-      set->n_lines = row - 1;
-      fclose(file);
+      if (c != ' ')
+        {
+          char *emacs_type = strdup(line + 2);
+          emacs_type[strlen(emacs_type) - 1] = '\0';
+          code_dream_format_type_t type =
+            code_source_emacs_type_to_code_dream_type(emacs_type);
+          free(emacs_type);
+          code_dream_char_info_t *char_info =
+            code_dream_char_info_create(c, type, row, col);
+          code_dream_char_info_set_add_char(set, char_info);
+        }
+      ++col;
     }
-  else
-    {
-      fprintf(stderr, "Failed to open file %s\n", info_filename);
-    }
-  free(info_filename);
+  set->n_lines = row - 1;
+  pclose(output);
   if (set->n_lines == 0)
     {
       code_dream_char_info_set_destroy(set);
