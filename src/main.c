@@ -85,6 +85,15 @@ update(code_source_t *code_source,
     }
   else
     {
+      if (code_source->n_sets == 0)
+        {
+          fprintf(stderr,
+                  "Error: No source code found at file or directory %s\n",
+                  code_source->filename);
+          code_source_destroy(code_source);
+          SDL_Quit();
+          exit(0);
+        }
       if (displays->n_displays == 0)
         {
           code_dream_code_display_set_add_display(displays);

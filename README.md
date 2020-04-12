@@ -38,6 +38,34 @@ Run for all code found in a directory.
 
     src/code-dream .
 
+Any files ending with the following extensions will be recognized
+(chosen somewhat arbitrarily, partly based on having used it or come
+across it before somewhere):
+    * `.as`
+    * `.c`
+    * `.c++`
+    * `.cc`
+    * `.cl`
+    * `.coffee`
+    * `.cpp`
+    * `.cs`
+    * `.css`
+    * `.el`
+    * `.go`
+    * `.h`
+    * `.hs`
+    * `.html`
+    * `.java`
+    * `.js`
+    * `.m`
+    * `.mm`
+    * `.pl`
+    * `.py`
+    * `.rb`
+    * `.rs`
+    * `.scm`
+    * `.sh`
+
 Set resolution.
 
     src/code-dream --width 800 --height 600 main.c
@@ -56,9 +84,6 @@ Generate an animated GIF.
 
 TODO
 ----
-
-* Support proper list of file suffixes for directory searching instead
-  of just .c, .h, and .java
 
 * Allow the user to specify a theme
     * Currently the theme used is `'tango-dark` and the colors themselves
@@ -104,6 +129,9 @@ TODO
 * Use a more efficient structure for `code_image_set_t` so that it can fetch
   requested images (by character and color) without having to scan through
   all of them.
+
+* ~~Support proper list of file suffixes for directory searching instead
+  of just .c, .h, and .java~~
 
 * ~~Support a proper install (via `make install`) so that highlight.el
   goes in /usr/share (or equivalent) and code-dream knows where it is~~

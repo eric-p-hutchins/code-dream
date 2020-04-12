@@ -203,6 +203,106 @@ code_source_add_char_info_set(code_source_t *code_source,
   code_source->sets[code_source->n_sets - 1] = char_info_set;
 }
 
+const char **
+create_extensions(size_t *n_extensions, ...)
+{
+  va_list ap;
+  *n_extensions = 0;
+  char **extensions = NULL;
+  va_start(ap, n_extensions);
+  const char *extension = va_arg(ap, const char*);
+  while (extension != NULL)
+    {
+      extensions = (char**)realloc(extensions,
+                                   sizeof(char*) * ++(*n_extensions));
+      extensions[*n_extensions - 1] = strdup(extension);
+      extension = va_arg(ap, const char*);
+    }
+  va_end(ap);
+  return (const char**)extensions;
+}
+
+bool
+has_extension(const char *filename, const char *extension)
+{
+  int filename_len = strlen(filename);
+  int extension_len = strlen(extension);
+  if (filename_len < extension_len)
+    {
+      return false;
+    }
+  int i;
+  for (i = 0; i < extension_len; ++i)
+    {
+      char c = extension[extension_len - 1 - i];
+      if (c >= 'a' && c <= 'z')
+        {
+          char upper_c = c - ('a' - 'A');
+          if (filename[filename_len - 1 - i] != c
+              && filename[filename_len - 1 - i] != upper_c)
+            {
+              return false;
+            }
+        }
+      else if (c >= 'A' && c <= 'Z')
+        {
+          char lower_c = c + ('a' - 'A');
+          if (filename[filename_len - 1 - i] != c
+              && filename[filename_len - 1 - i] != lower_c)
+            {
+              return false;
+            }
+        }
+      else if (filename[filename_len - 1 - i] != extension[extension_len - 1 - i])
+        {
+          return false;
+        }
+    }
+  return true;
+}
+
+bool
+is_source_code_filename(const char *filename)
+{
+  size_t n_extensions;
+  const char **extensions =
+    create_extensions(&n_extensions,
+                      ".as",
+                      ".c",
+                      ".c++",
+                      ".cc",
+                      ".cl",
+                      ".coffee",
+                      ".cpp",
+                      ".cs",
+                      ".css",
+                      ".el",
+                      ".go",
+                      ".h",
+                      ".hs",
+                      ".html",
+                      ".java",
+                      ".js",
+                      ".m",
+                      ".mm",
+                      ".pl",
+                      ".py",
+                      ".rb",
+                      ".rs",
+                      ".scm",
+                      ".sh",
+                      NULL);
+  int i;
+  for (i = 0; i < n_extensions; ++i)
+    {
+      if (has_extension(filename, extensions[i]))
+        {
+          return true;
+        }
+    }
+  return false;
+}
+
 void
 code_source_load_char_info_sets(code_source_t *code_source,
                                 const char *filename)
@@ -235,17 +335,8 @@ code_source_load_char_info_sets(code_source_t *code_source,
           strcat(ent_path, ent->d_name);
           code_source_load_char_info_sets(code_source, ent_path);
         }
-      else if (strlen(ent->d_name) > 2
-               && ((ent->d_name[strlen(ent->d_name) - 1] == 'c'
-                    && ent->d_name[strlen(ent->d_name) - 2] == '.')
-                   || (ent->d_name[strlen(ent->d_name) - 1] == 'h'
-                       && ent->d_name[strlen(ent->d_name) - 2] == '.')
-                   || (strlen(ent->d_name) > 5
-                       && ent->d_name[strlen(ent->d_name) - 1] == 'a'
-                       && ent->d_name[strlen(ent->d_name) - 2] == 'v'
-                       && ent->d_name[strlen(ent->d_name) - 3] == 'a'
-                       && ent->d_name[strlen(ent->d_name) - 4] == 'j'
-                       && ent->d_name[strlen(ent->d_name) - 5] == '.')))
+      else if (ent->d_type == DT_REG
+               && is_source_code_filename(ent->d_name))
         {
           char *ent_path = (char*)malloc(strlen(filename)
                                          + strlen("/")
@@ -272,12 +363,6 @@ code_source_load(void *data)
 {
   code_source_t *code_source = (code_source_t*)data;
   code_source_load_char_info_sets(code_source, code_source->filename);
-  if (code_source->n_sets == 0)
-    {
-      fprintf(stderr,
-              "Error: No source code found at file or directory %s\n",
-              code_source->filename);
-    }
   code_source->loaded = true;
   return 0;
 }
