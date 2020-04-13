@@ -63,8 +63,8 @@ code_dream_code_display_draw_char(code_dream_code_display_t *display,
     * display->screen_height / 400.0;
   rect.y = display->screen_height / 2 + (-zoom_y + y) / display->dist
     * display->screen_height / 400.0;
-  rect.x += (rand() % 3 - 1) * display->screen_height / 600.0;
-  rect.y += (rand() % 3 - 1) * display->screen_height / 600.0;
+  rect.x += (rand() % 3 - 1) * display->screen_height / 200.0 / display->dist;
+  rect.y += (rand() % 3 - 1) * display->screen_height / 200.0 / display->dist;
   rect.w = image->w / display->dist * display->screen_height / 400.0;
   rect.h = image->h / display->dist * display->screen_height / 400.0;
   double dist_range = display->max_dist - display->min_dist;
