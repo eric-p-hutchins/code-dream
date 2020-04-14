@@ -6,6 +6,7 @@
 
 (setq theme-name nil)
 (setq background 'light)
+(setq case-fold-search t)
 
 (defun face-spec-display-attribute (spec attribute)
   (if (eq (car spec) 't)
@@ -61,18 +62,27 @@
   (replace-regexp-in-string " " "" (downcase name)))
 
 (defun color-name-to-hex (name)
-  (let ((color (assoc (color-alist-name name) color-name-rgb-alist)))
-    (if color
-        (let ((max-value (car (color-values "#ffffff")))
-              (value (cdr color)))
-          (apply 'color-rgb-to-hex
-                 (append (mapcar (lambda (x)
-                                   (/ x (float max-value)))
-                                 value)
-                         '(2))))
-      (if (eq background 'light)
-          "#000000"
-        "#ffffff"))))
+  ;; If it's already a 6 digit hex, then just return it
+  (cond ((string-match "^#[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]$" name)
+         name)
+        ((string-match "^#[0-9a-f][0-9a-f][0-9a-f]$" name)
+         (apply 'color-rgb-to-hex
+                (mapcar (lambda (x)
+                          (/ (float (string-to-number (string x) 16))
+                             15))
+                        (cdr (string-to-list name)))))
+        (t (let ((color (assoc (color-alist-name name) color-name-rgb-alist)))
+             (if color
+                 (let ((max-value (car (color-values "#ffffff")))
+                       (value (cdr color)))
+                   (apply 'color-rgb-to-hex
+                          (append (mapcar (lambda (x)
+                                            (/ x (float max-value)))
+                                          value)
+                                  '(2))))
+               (if (eq background 'light)
+                   "#000000"
+                 "#ffffff"))))))
 
 (defun get-background (theme-name)
   (let* ((attributes (face-theme-attributes theme-name 'default))
@@ -173,15 +183,13 @@
                         custom-theme-load-path)))
 
 (dolist (arg command-line-args-left)
-  (if (or (string= arg "--dark")
-          (string= arg "-d"))
+  (if (string= arg "--dark")
       (setq background 'dark)
     (setq theme-name arg)))
 
 (if (null theme-name)
     (write-defaults)
-  (let* ((theme-name (car command-line-args-left))
-         (theme (intern theme-name)))
+  (let* ((theme (intern theme-name)))
     (if (theme-exists theme)
         (progn
           (load-theme theme)

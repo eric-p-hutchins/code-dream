@@ -94,6 +94,21 @@ Generate an animated GIF.
 TODO
 ----
 
+* Write tests, specifically around parsing themes properly, but look
+  for other things to verify
+    * Write a little contrived emacs theme and verify that the output
+      of `theme.el` matches what you expect
+
+* In the fading-in effect, don't just make it translucent but merge
+  the color with the background color (still at full opacity) before
+  drawing so that it blocks what's behind it, like fog
+    * This may require ditching the idea of creating textures up-front
+      and instead somehow getting a "glyph" or some kind of shape that
+      can be drawn in any given color, so that the color can be
+      computed at draw-time without performance issues
+
+* Respect bold attribute in themes.
+
 * Try different methods of creating GIF color maps:
     * Collect stats of colors used in every frame
         * Initialize a `48M * sizeof(long)` array indexed by color value
