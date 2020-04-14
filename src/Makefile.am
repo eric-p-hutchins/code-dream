@@ -16,6 +16,8 @@ code_dream_SOURCES = \
  code-dream-loading-screen.c \
  code-dream-loading-screen.h \
  code-dream-options.h \
+ code-dream-theme.c \
+ code-dream-theme.h \
  code-image-set.c \
  code-image-set.h \
  code-source.c \
@@ -30,4 +32,5 @@ code_dream_CFLAGS +=  -DDATADIR=\"$(code_dream_datadir)\"
 
 dist_code_dream_data_DATA = \
  ../highlight.el \
+ ../theme.el \
  ../DejaVuSansMono.ttf

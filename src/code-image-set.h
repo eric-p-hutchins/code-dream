@@ -25,12 +25,14 @@
 
 #include "code-source.h"
 #include "code-dream-image.h"
+#include "code-dream-theme.h"
 
 typedef struct code_image_set_t code_image_set_t;
 
 struct code_image_set_t
 {
   code_source_t *code_source;
+  code_dream_theme_t *theme;
   char *font_path;
   SDL_Renderer *renderer;
   code_dream_image_t **images;
@@ -44,6 +46,7 @@ struct code_image_set_t
 code_image_set_t *
 code_image_set_create(const char *basedir,
                       code_source_t *code_source,
+                      code_dream_theme_t *theme,
                       SDL_Renderer *renderer);
 
 bool

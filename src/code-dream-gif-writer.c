@@ -43,6 +43,7 @@ code_dream_gif_writer_t *
 code_dream_gif_writer_create(const char *basedir,
                              const char *filename,
                              code_source_t *code_source,
+                             code_dream_theme_t *theme,
                              int screen_width,
                              int screen_height)
 {
@@ -61,6 +62,7 @@ code_dream_gif_writer_create(const char *basedir,
   priv->renderer = SDL_CreateSoftwareRenderer(priv->surface);
   priv->code_image_set = code_image_set_create(basedir,
                                                code_source,
+                                               theme,
                                                priv->renderer);
   if (priv->code_image_set == NULL)
     {
@@ -81,88 +83,77 @@ code_dream_gif_writer_create(const char *basedir,
       return NULL;
     }
 
-  SDL_Color CODR_BACKGROUND_COLOR = {46, 52, 53};
-  SDL_Color CODR_DEFAULT_COLOR = {238,238,236};
-  SDL_Color CODR_PREPROC_COLOR = {223,144,214};
-  SDL_Color CODR_STRING_COLOR = {233,185,110};
-  SDL_Color CODR_VAR_COLOR = {252,175,61};
-  SDL_Color CODR_TYPE_COLOR = {141,196,255};
-  SDL_Color CODR_FUNC_COLOR = {252,233,79};
-  SDL_Color CODR_KEYWORD_COLOR = {180,249,112};
-  SDL_Color CODR_KEYVALUE_COLOR = {232,178,227};
-  SDL_Color CODR_COMMENT_COLOR = {116,210,24};
-
   GifColorType *colors = malloc(sizeof(GifColorType) * 256);
-  colors[0] = (GifColorType){CODR_DEFAULT_COLOR.r,
-                             CODR_DEFAULT_COLOR.g,
-                             CODR_DEFAULT_COLOR.b};
-  colors[1] = (GifColorType){CODR_PREPROC_COLOR.r,
-                             CODR_PREPROC_COLOR.g,
-                             CODR_PREPROC_COLOR.b};
-  colors[2] = (GifColorType){CODR_STRING_COLOR.r,
-                             CODR_STRING_COLOR.g,
-                             CODR_STRING_COLOR.b};
-  colors[3] = (GifColorType){CODR_VAR_COLOR.r,
-                             CODR_VAR_COLOR.g,
-                             CODR_VAR_COLOR.b};
-  colors[4] = (GifColorType){CODR_TYPE_COLOR.r,
-                             CODR_TYPE_COLOR.g,
-                             CODR_TYPE_COLOR.b};
-  colors[5] = (GifColorType){CODR_FUNC_COLOR.r,
-                             CODR_FUNC_COLOR.g,
-                             CODR_FUNC_COLOR.b};
-  colors[6] = (GifColorType){CODR_KEYWORD_COLOR.r,
-                             CODR_KEYWORD_COLOR.g,
-                             CODR_KEYWORD_COLOR.b};
-  colors[7] = (GifColorType){CODR_KEYVALUE_COLOR.r,
-                             CODR_KEYVALUE_COLOR.g,
-                             CODR_KEYVALUE_COLOR.b};
-  colors[8] = (GifColorType){CODR_COMMENT_COLOR.r,
-                             CODR_COMMENT_COLOR.g,
-                             CODR_COMMENT_COLOR.b};
+  colors[0] = (GifColorType){theme->default_color.r,
+                             theme->default_color.g,
+                             theme->default_color.b};
+  colors[1] = (GifColorType){theme->preproc_color.r,
+                             theme->preproc_color.g,
+                             theme->preproc_color.b};
+  colors[2] = (GifColorType){theme->string_color.r,
+                             theme->string_color.g,
+                             theme->string_color.b};
+  colors[3] = (GifColorType){theme->var_color.r,
+                             theme->var_color.g,
+                             theme->var_color.b};
+  colors[4] = (GifColorType){theme->type_color.r,
+                             theme->type_color.g,
+                             theme->type_color.b};
+  colors[5] = (GifColorType){theme->func_color.r,
+                             theme->func_color.g,
+                             theme->func_color.b};
+  colors[6] = (GifColorType){theme->keyword_color.r,
+                             theme->keyword_color.g,
+                             theme->keyword_color.b};
+  colors[7] = (GifColorType){theme->keyvalue_color.r,
+                             theme->keyvalue_color.g,
+                             theme->keyvalue_color.b};
+  colors[8] = (GifColorType){theme->comment_color.r,
+                             theme->comment_color.g,
+                             theme->comment_color.b};
   code_dream_gif_writer_color_map_gradient(colors,
-                                           CODR_DEFAULT_COLOR,
-                                           CODR_BACKGROUND_COLOR,
+                                           theme->default_color,
+                                           theme-> background_color,
                                            9,
                                            27);
   code_dream_gif_writer_color_map_gradient(colors,
-                                           CODR_PREPROC_COLOR,
-                                           CODR_BACKGROUND_COLOR,
+                                           theme->preproc_color,
+                                           theme->background_color,
                                            36,
                                            27);
   code_dream_gif_writer_color_map_gradient(colors,
-                                           CODR_STRING_COLOR,
-                                           CODR_BACKGROUND_COLOR,
+                                           theme->string_color,
+                                           theme->background_color,
                                            63,
                                            27);
   code_dream_gif_writer_color_map_gradient(colors,
-                                           CODR_VAR_COLOR,
-                                           CODR_BACKGROUND_COLOR,
+                                           theme->var_color,
+                                           theme->background_color,
                                            90,
                                            27);
   code_dream_gif_writer_color_map_gradient(colors,
-                                           CODR_TYPE_COLOR,
-                                           CODR_BACKGROUND_COLOR,
+                                           theme->type_color,
+                                           theme->background_color,
                                            117,
                                            27);
   code_dream_gif_writer_color_map_gradient(colors,
-                                           CODR_FUNC_COLOR,
-                                           CODR_BACKGROUND_COLOR,
+                                           theme->func_color,
+                                           theme->background_color,
                                            144,
                                            27);
   code_dream_gif_writer_color_map_gradient(colors,
-                                           CODR_KEYWORD_COLOR,
-                                           CODR_BACKGROUND_COLOR,
+                                           theme->keyword_color,
+                                           theme->background_color,
                                            171,
                                            27);
   code_dream_gif_writer_color_map_gradient(colors,
-                                           CODR_KEYVALUE_COLOR,
-                                           CODR_BACKGROUND_COLOR,
+                                           theme->keyvalue_color,
+                                           theme->background_color,
                                            198,
                                            27);
   code_dream_gif_writer_color_map_gradient(colors,
-                                           CODR_COMMENT_COLOR,
-                                           CODR_BACKGROUND_COLOR,
+                                           theme->comment_color,
+                                           theme->background_color,
                                            225,
                                            27);
   int i;

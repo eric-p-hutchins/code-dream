@@ -15,26 +15,34 @@
 // You should have received a copy of the GNU General Public License
 // along with Code Dream.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef CODE_DREAM_OPTIONS_H
-#define CODE_DREAM_OPTIONS_H
+#ifndef CODE_DREAM_THEME_H
+#define CODE_DREAM_THEME_H
 
 #include <stdbool.h>
 
-typedef struct code_dream_options_t code_dream_options_t;
+#include "SDL2/SDL_pixels.h"
 
-struct code_dream_options_t
+typedef struct code_dream_theme_t code_dream_theme_t;
+
+struct code_dream_theme_t
 {
-  int screen_width;
-  int screen_height;
-  int screen_x;
-  int screen_y;
-  bool help;
-  bool version;
-  bool fullscreen;
-  bool light;
-  char *output;
-  char *filename;
-  char *theme;
+  SDL_Color background_color;
+  SDL_Color default_color;
+  SDL_Color preproc_color;
+  SDL_Color string_color;
+  SDL_Color var_color;
+  SDL_Color type_color;
+  SDL_Color func_color;
+  SDL_Color keyword_color;
+  SDL_Color keyvalue_color;
+  SDL_Color comment_color;
 };
+
+code_dream_theme_t *
+code_dream_theme_create(const char *name,
+                        bool light,
+                        const char *basedir);
+
+void code_dream_theme_destroy(code_dream_theme_t *theme);
 
 #endif

@@ -47,6 +47,7 @@ code_dream_gif_writer_t *
 code_dream_gif_writer_create(const char *basedir,
                              const char *filename,
                              code_source_t *code_source,
+                             code_dream_theme_t *theme,
                              int screen_width,
                              int screen_height);
 

@@ -30,8 +30,6 @@ void code_source_load_char_info_sets(code_source_t *code_source,
 
 int code_source_load(void *data);
 
-extern char *get_basedir(const char *path);
-
 code_source_t *
 code_source_create(const char *basedir, const char *filename)
 {

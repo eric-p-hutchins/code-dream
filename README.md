@@ -79,6 +79,14 @@ Specify fullscreen.
 
     src/code-dream -f main.c
 
+Use a dark theme (with the default Emacs colors).
+
+    src/code-dream -d main.c
+
+Choose an Emacs theme.
+
+    src/code-dream -t tango-dark main.c
+
 Generate an animated GIF.
 
     src/code-dream -o sample.gif main.c
@@ -86,14 +94,7 @@ Generate an animated GIF.
 TODO
 ----
 
-* Allow the user to specify a theme
-    * Currently the theme used is `'tango-dark` and the colors themselves
-      are hard-coded into the program in various places.
-    * If we get these colors from `emacs` instead in the script then we
-      can allow the user to specify a `--theme` and pass that along to
-      emacs.
-
-* Try different methods or creating GIF color maps:
+* Try different methods of creating GIF color maps:
     * Collect stats of colors used in every frame
         * Initialize a `48M * sizeof(long)` array indexed by color value
           (`0x000000` to `0xFFFFFF`) and increment the value for every pixel
@@ -114,8 +115,8 @@ TODO
 * Allow using arbitrary font choices, possibly installed on the system
 
 * Optimize loading of code
-    * Possibly make the emacs script run on all found code files at once
-    * Possibly replace the emacs script somehow
+    * Possibly make `highlight.el` run on all found code files at once
+    * Possibly replace `highlight.el` somehow
 
 * Configuration options for zoom level, maximum distance, speed, etc.
 
@@ -130,6 +131,13 @@ TODO
 * Use a more efficient structure for `code_image_set_t` so that it can fetch
   requested images (by character and color) without having to scan through
   all of them.
+
+* ~~Allow the user to specify a theme~~
+    * ~~Currently the theme used is `'tango-dark` and the colors themselves
+      are hard-coded into the program in various places.~~
+    * ~~If we get these colors from `emacs` instead in the script then we
+      can allow the user to specify a `--theme` and pass that along to
+      emacs.~~
 
 * ~~Support proper list of file suffixes for directory searching instead
   of just .c, .h, and .java~~

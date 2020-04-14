@@ -17,24 +17,16 @@
 
 #include "code-image-set.h"
 
-SDL_Color CODR_DEFAULT_COLOR = {238,238,236};
-SDL_Color CODR_PREPROC_COLOR = {223,144,214};
-SDL_Color CODR_STRING_COLOR = {233,185,110};
-SDL_Color CODR_VAR_COLOR = {252,175,61};
-SDL_Color CODR_TYPE_COLOR = {141,196,255};
-SDL_Color CODR_FUNC_COLOR = {252,233,79};
-SDL_Color CODR_KEYWORD_COLOR = {180,249,112};
-SDL_Color CODR_KEYVALUE_COLOR = {232,178,227};
-SDL_Color CODR_COMMENT_COLOR = {116,210,24};
-
 code_image_set_t *
 code_image_set_create(const char *basedir,
                       code_source_t *code_source,
+                      code_dream_theme_t *theme,
                       SDL_Renderer *renderer)
 {
   code_image_set_t *code_image_set =
     (code_image_set_t*)malloc(sizeof(code_image_set_t));
   code_image_set->code_source = code_source;
+  code_image_set->theme = theme;
   code_image_set->renderer = renderer;
   code_image_set->font_path = (char*)malloc(strlen(basedir)
                                               + strlen("/DejaVuSansMono.ttf")
@@ -108,35 +100,36 @@ code_dream_image_t *
 code_image_set_create_image(code_image_set_t *code_image_set,
                             code_dream_char_info_t *char_info)
 {
-  SDL_Color color = CODR_DEFAULT_COLOR;
+  code_dream_theme_t *theme = code_image_set->theme;
+  SDL_Color color = theme->default_color;
   switch(char_info->type)
     {
     case CODR_PREPROC:
-      color = CODR_PREPROC_COLOR;
+      color = theme->preproc_color;
       break;
     case CODR_STRING:
-      color = CODR_STRING_COLOR;
+      color = theme->string_color;
       break;
     case CODR_KEYWORD:
-      color = CODR_KEYWORD_COLOR;
+      color = theme->keyword_color;
       break;
     case CODR_TYPE:
-      color = CODR_TYPE_COLOR;
+      color = theme->type_color;
       break;
     case CODR_FUNCTION:
-      color = CODR_FUNC_COLOR;
+      color = theme->func_color;
       break;
     case CODR_IDENTIFIER:
-      color = CODR_VAR_COLOR;
+      color = theme->var_color;
       break;
     case CODR_KEYVALUE:
-      color = CODR_KEYVALUE_COLOR;
+      color = theme->keyvalue_color;
       break;
     case CODR_COMMENT:
-      color = CODR_COMMENT_COLOR;
+      color = theme->comment_color;
       break;
     default:
-      color = CODR_DEFAULT_COLOR;
+      color = theme->default_color;
       break;
     }
   char c[2];

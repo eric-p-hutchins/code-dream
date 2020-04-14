@@ -45,7 +45,8 @@ handle_events(bool *running)
 }
 
 void
-draw(code_dream_code_display_set_t *displays,
+draw(code_dream_theme_t *theme,
+     code_dream_code_display_set_t *displays,
      code_dream_loading_screen_t *loading_screen,
      code_source_t *code_source,
      code_image_set_t *code_image_set,
@@ -60,7 +61,11 @@ draw(code_dream_code_display_set_t *displays,
     }
   else
     {
-      SDL_SetRenderDrawColor(renderer, 46, 52, 53, 255);
+      SDL_SetRenderDrawColor(renderer,
+                             theme->background_color.r,
+                             theme->background_color.g,
+                             theme->background_color.b,
+                             255);
       SDL_RenderClear(renderer);
       code_dream_code_display_set_draw(displays, renderer);
       if (gif_writer != NULL && displays->n_displays > 0)
@@ -201,33 +206,30 @@ parse_args(int argc, char *argv[])
   options->filename = NULL;
   options->help = false;
   options->output = NULL;
+  options->theme = NULL;
+  options->light = true;
   int i;
   for (i = 1; i < argc; ++i)
     {
-      if (parse_int_arg(argc, argv, "--width", "screen width", &i,
-                        &options->screen_width))
+      if (strcmp("-d", argv[i]) == 0
+               || strcmp("--dark", argv[i]) == 0)
         {
-          continue;
+          options->light = false;
+        }
+      else if (strcmp("-f", argv[i]) == 0
+               || strcmp("--fullscreen", argv[i]) == 0)
+        {
+          options->fullscreen = true;
         }
       else if (parse_int_arg(argc, argv, "--height", "screen height", &i,
                              &options->screen_height))
         {
           continue;
         }
-      else if (parse_int_arg(argc, argv, "-x", "screen x position", &i,
-                             &options->screen_x))
+      else if (strcmp("-h", argv[i]) == 0
+               || strcmp("--help", argv[i]) == 0)
         {
-          continue;
-        }
-      else if (parse_int_arg(argc, argv, "-y", "screen y position", &i,
-                             &options->screen_y))
-        {
-          continue;
-        }
-      else if (strcmp("-f", argv[i]) == 0
-               || strcmp("--fullscreen", argv[i]) == 0)
-        {
-          options->fullscreen = true;
+          options->help = true;
         }
       else if (parse_string_arg(argc, argv, "-o", "--output",
                                 "output", &i,
@@ -242,14 +244,30 @@ parse_args(int argc, char *argv[])
             }
           continue;
         }
-      else if (strcmp("-h", argv[i]) == 0
-               || strcmp("--help", argv[i]) == 0)
+      else if (parse_string_arg(argc, argv, "-t", "--theme",
+                                "theme", &i,
+                                &options->theme))
         {
-          options->help = true;
+          continue;
         }
       else if (strcmp("--version", argv[i]) == 0)
         {
           options->version = true;
+        }
+      else if (parse_int_arg(argc, argv, "--width", "screen width", &i,
+                        &options->screen_width))
+        {
+          continue;
+        }
+      else if (parse_int_arg(argc, argv, "-x", "screen x position", &i,
+                             &options->screen_x))
+        {
+          continue;
+        }
+      else if (parse_int_arg(argc, argv, "-y", "screen y position", &i,
+                             &options->screen_y))
+        {
+          continue;
         }
       else
         {
@@ -267,6 +285,8 @@ char *help_text = "Usage: code-dream [OPTION]... [filename]\n"
   "Display animated source code... for backgrounds and stuff.\n"
   "\n"
   "Options:\n"
+  "  -d, --dark                      use dark default emacs colors when\n"
+  "                                    --theme is not in effect.\n"
   "  -f, --fullscreen                set fullscreen.\n"
   "      --height                    set screen height.\n"
   "  -h, --help                      display this help and exit.\n"
@@ -274,6 +294,9 @@ char *help_text = "Usage: code-dream [OPTION]... [filename]\n"
   "                                    only GIF is currently supported.\n"
   "      --version                   display version information and exit.\n"
   "      --width                     set screen width.\n"
+  "  -t, --theme                     set theme.\n"
+  "                                    this can be anything that emacs will\n"
+  "                                    recognize with M-x load-theme\n"
   "  -x                              set screen x position.\n"
   "  -y                              set screen y position.\n"
   "\n"
@@ -346,10 +369,20 @@ main (int argc, char *argv[])
                                         | SDL_WINDOW_BORDERLESS);
   SDL_Renderer *renderer =
     SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC);
+  code_dream_theme_t *theme = code_dream_theme_create(options->theme,
+                                                      options->light,
+                                                      basedir);
+  if (theme == NULL)
+    {
+      code_source_destroy(code_source);
+      SDL_Quit();
+      exit(0);
+    }
   code_image_set_t *code_image_set =
-    code_image_set_create(basedir, code_source, renderer);
+    code_image_set_create(basedir, code_source, theme, renderer);
   if (code_image_set == NULL)
     {
+      code_dream_theme_destroy(theme);
       code_source_destroy(code_source);
       SDL_Quit();
       exit(0);
@@ -361,6 +394,7 @@ main (int argc, char *argv[])
         code_dream_gif_writer_create(basedir,
                                      options->output,
                                      code_source,
+                                     theme,
                                      options->screen_width,
                                      options->screen_height);
     }
@@ -385,7 +419,8 @@ main (int argc, char *argv[])
              code_image_set,
              loading_screen,
              displays);
-      draw(displays,
+      draw(theme,
+           displays,
            loading_screen,
            code_source,
            code_image_set,
@@ -400,6 +435,7 @@ main (int argc, char *argv[])
       code_dream_gif_writer_write_gif(gif_writer);
       code_dream_gif_writer_destroy(gif_writer);
     }
+  code_dream_theme_destroy(theme);
   code_dream_loading_screen_destroy(loading_screen);
   code_dream_code_display_set_destroy(displays);
   code_image_set_destroy(code_image_set);
