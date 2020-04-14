@@ -84,80 +84,83 @@ code_dream_gif_writer_create(const char *basedir,
     }
 
   GifColorType *colors = malloc(sizeof(GifColorType) * 256);
-  colors[0] = (GifColorType){theme->default_color.r,
+  colors[0] = (GifColorType){theme->background_color.r,
+                             theme->background_color.g,
+                             theme->background_color.b};
+  colors[1] = (GifColorType){theme->default_color.r,
                              theme->default_color.g,
                              theme->default_color.b};
-  colors[1] = (GifColorType){theme->preproc_color.r,
+  colors[2] = (GifColorType){theme->preproc_color.r,
                              theme->preproc_color.g,
                              theme->preproc_color.b};
-  colors[2] = (GifColorType){theme->string_color.r,
+  colors[3] = (GifColorType){theme->string_color.r,
                              theme->string_color.g,
                              theme->string_color.b};
-  colors[3] = (GifColorType){theme->var_color.r,
+  colors[4] = (GifColorType){theme->var_color.r,
                              theme->var_color.g,
                              theme->var_color.b};
-  colors[4] = (GifColorType){theme->type_color.r,
+  colors[5] = (GifColorType){theme->type_color.r,
                              theme->type_color.g,
                              theme->type_color.b};
-  colors[5] = (GifColorType){theme->func_color.r,
+  colors[6] = (GifColorType){theme->func_color.r,
                              theme->func_color.g,
                              theme->func_color.b};
-  colors[6] = (GifColorType){theme->keyword_color.r,
+  colors[7] = (GifColorType){theme->keyword_color.r,
                              theme->keyword_color.g,
                              theme->keyword_color.b};
-  colors[7] = (GifColorType){theme->keyvalue_color.r,
+  colors[8] = (GifColorType){theme->keyvalue_color.r,
                              theme->keyvalue_color.g,
                              theme->keyvalue_color.b};
-  colors[8] = (GifColorType){theme->comment_color.r,
+  colors[9] = (GifColorType){theme->comment_color.r,
                              theme->comment_color.g,
                              theme->comment_color.b};
   code_dream_gif_writer_color_map_gradient(colors,
                                            theme->default_color,
-                                           theme-> background_color,
-                                           9,
+                                           theme->background_color,
+                                           10,
                                            27);
   code_dream_gif_writer_color_map_gradient(colors,
                                            theme->preproc_color,
                                            theme->background_color,
-                                           36,
+                                           37,
                                            27);
   code_dream_gif_writer_color_map_gradient(colors,
                                            theme->string_color,
                                            theme->background_color,
-                                           63,
+                                           64,
                                            27);
   code_dream_gif_writer_color_map_gradient(colors,
                                            theme->var_color,
                                            theme->background_color,
-                                           90,
+                                           91,
                                            27);
   code_dream_gif_writer_color_map_gradient(colors,
                                            theme->type_color,
                                            theme->background_color,
-                                           117,
+                                           118,
                                            27);
   code_dream_gif_writer_color_map_gradient(colors,
                                            theme->func_color,
                                            theme->background_color,
-                                           144,
+                                           145,
                                            27);
   code_dream_gif_writer_color_map_gradient(colors,
                                            theme->keyword_color,
                                            theme->background_color,
-                                           171,
+                                           172,
                                            27);
   code_dream_gif_writer_color_map_gradient(colors,
                                            theme->keyvalue_color,
                                            theme->background_color,
-                                           198,
+                                           199,
                                            27);
   code_dream_gif_writer_color_map_gradient(colors,
                                            theme->comment_color,
                                            theme->background_color,
-                                           225,
+                                           226,
                                            27);
   int i;
-  for (i = 252; i < 256; ++i)
+  for (i = 253; i < 256; ++i)
     {
       colors[i] = (GifColorType){0, 0, 0};
     }
@@ -180,10 +183,6 @@ int
 code_dream_gif_writer_find_closest_color(ColorMapObject *ColorMap,
                                          int r, int g, int b)
 {
-  // Grayscale
-  // int v = (r + g + b) / 3;
-  // return v;
-
   int v = 0;
   int min_dist =
     abs(r - ColorMap->Colors[0].Red)
@@ -266,7 +265,10 @@ code_dream_gif_writer_draw_frame(code_dream_gif_writer_t *writer,
     }
 
 
-  SDL_SetRenderDrawColor(renderer, 46, 52, 53, 255);
+  SDL_SetRenderDrawColor(renderer,
+                         code_image_set->theme->background_color.r,
+                         code_image_set->theme->background_color.g,
+                         code_image_set->theme->background_color.b, 255);
   SDL_RenderClear(renderer);
 
   // Replace the code image set with the one created for the software
@@ -298,9 +300,8 @@ code_dream_gif_writer_draw_frame(code_dream_gif_writer_t *writer,
           int r = pixels[i * surface->pitch + j * 3];
           int g = pixels[i * surface->pitch + j * 3 + 1];
           int b = pixels[i * surface->pitch + j * 3 + 2];
-          int v =
-            code_dream_gif_writer_find_closest_color(priv->gif_file->SColorMap,
-                                                     r, g, b);
+          int v = code_dream_gif_writer_find_closest_color(priv->gif_file->SColorMap,
+                                                           r, g, b);
           image.RasterBits[i * surface->w + j] = v;
         }
     }

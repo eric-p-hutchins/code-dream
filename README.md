@@ -6,7 +6,7 @@ Animated source code... for backgrounds and stuff.
 Specifically, I made this for fun to use for a Zoom virtual
 background. But I'm sure there could be other uses.
 
-![Sample](/sample.gif)
+![Animated GIF of program source using tango-dark theme](/tango-dark.gif)
 
 Dependencies
 ------------
@@ -67,29 +67,31 @@ across it before somewhere):
 * `.scm`
 * `.sh`
 
-Set resolution.
+Examples:
 
-    src/code-dream --width 800 --height 600 main.c
+* `code-dream --width 240 --height 150 src/main.c`
 
-Set position.
+    Use the default Emacs colors.
 
-    src/code-dream -x 0 -y 0 main.c
+    ![Animated GIF of program source using default colors](/default.gif)
 
-Specify fullscreen.
+* `code-dream --width 240 --height 150 -d src/main.c`
 
-    src/code-dream -f main.c
+    Use the default Emacs colors when you have a "dark" background.
 
-Use a dark theme (with the default Emacs colors).
+    ![Animated GIF of program source using default dark colors](/default-dark.gif)
 
-    src/code-dream -d main.c
+* `code-dream --width 240 --height 150 -t tango-dark src/main.c`
 
-Choose an Emacs theme.
+    Use the Emacs tango-dark theme. Any Emacs theme can be specified
+    (something that would work when using `M-x load-theme` in Emacs)
 
-    src/code-dream -t tango-dark main.c
+    ![Animated GIF of program source using tango-dark theme](/tango-dark.gif)
 
-Generate an animated GIF.
+* `code-dream --width 240 --height 150 -t tango-dark -o tango-dark.gif src/main.c`
 
-    src/code-dream -o sample.gif main.c
+    Generate an animated GIF called `tango-dark.gif` (what I ran to
+    create the above GIF file)
 
 TODO
 ----
