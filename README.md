@@ -6,8 +6,6 @@ Animated source code... for backgrounds and stuff.
 Specifically, I made this for fun to use for a Zoom virtual
 background. But I'm sure there could be other uses.
 
-![Animated GIF of program source using tango-dark theme](/tango-dark.gif)
-
 Dependencies
 ------------
 
