@@ -33,6 +33,27 @@ load_color(SDL_Color *color, FILE *file)
   color->a = 255;
 }
 
+void
+load_face(code_dream_face_t *face, FILE *file)
+{
+  load_color(&(face->color), file);
+  char bold[2] = "N";
+  fread(bold, 1, 1, file);
+  if (bold[0] == 'N')
+    {
+      face->weight = CD_NORMAL;
+    }
+  else if (bold[0] == 'B')
+    {
+      face->weight = CD_BOLD;
+    }
+  else
+    {
+      fprintf(stderr, "Error parsing bold attribute from theme.el output: %c\n",
+              bold[0]);
+    }
+}
+
 code_dream_theme_t *
 code_dream_theme_create(const char *name,
                         bool light,
@@ -104,15 +125,15 @@ code_dream_theme_create(const char *name,
     }
   free(command);
   load_color(&(theme->background_color), file);
-  load_color(&(theme->default_color), file);
-  load_color(&(theme->preproc_color), file);
-  load_color(&(theme->string_color), file);
-  load_color(&(theme->keyword_color), file);
-  load_color(&(theme->type_color), file);
-  load_color(&(theme->func_color), file);
-  load_color(&(theme->var_color), file);
-  load_color(&(theme->keyvalue_color), file);
-  load_color(&(theme->comment_color), file);
+  load_face(&(theme->default_face), file);
+  load_face(&(theme->preproc_face), file);
+  load_face(&(theme->string_face), file);
+  load_face(&(theme->keyword_face), file);
+  load_face(&(theme->type_face), file);
+  load_face(&(theme->func_face), file);
+  load_face(&(theme->var_face), file);
+  load_face(&(theme->keyvalue_face), file);
+  load_face(&(theme->comment_face), file);
   pclose(file);
   return theme;
 }

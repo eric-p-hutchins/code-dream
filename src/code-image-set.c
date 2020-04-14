@@ -68,6 +68,7 @@ code_image_set_create(const char *basedir,
       free(code_image_set);
       return NULL;
     }
+  TTF_SetFontHinting(code_image_set->font, TTF_HINTING_NONE);
   if (TTF_SizeUTF8(code_image_set->font,
                    "A",
                    &(code_image_set->font_width),
@@ -101,40 +102,51 @@ code_image_set_create_image(code_image_set_t *code_image_set,
                             code_dream_char_info_t *char_info)
 {
   code_dream_theme_t *theme = code_image_set->theme;
-  SDL_Color color = theme->default_color;
+  code_dream_face_t face = theme->default_face;
   switch(char_info->type)
     {
     case CODR_PREPROC:
-      color = theme->preproc_color;
+      face = theme->preproc_face;
       break;
     case CODR_STRING:
-      color = theme->string_color;
+      face = theme->string_face;
       break;
     case CODR_KEYWORD:
-      color = theme->keyword_color;
+      face = theme->keyword_face;
       break;
     case CODR_TYPE:
-      color = theme->type_color;
+      face = theme->type_face;
       break;
     case CODR_FUNCTION:
-      color = theme->func_color;
+      face = theme->func_face;
       break;
     case CODR_IDENTIFIER:
-      color = theme->var_color;
+      face = theme->var_face;
       break;
     case CODR_KEYVALUE:
-      color = theme->keyvalue_color;
+      face = theme->keyvalue_face;
       break;
     case CODR_COMMENT:
-      color = theme->comment_color;
+      face = theme->comment_face;
       break;
     default:
-      color = theme->default_color;
+      face = theme->default_face;
       break;
     }
+  SDL_Color color = face.color;
   char c[2];
   c[0] = char_info->c;
   c[1] = '\0';
+
+  if (face.weight == CD_BOLD)
+    {
+      TTF_SetFontStyle(code_image_set->font, TTF_STYLE_BOLD);
+    }
+  else
+    {
+      TTF_SetFontStyle(code_image_set->font, TTF_STYLE_NORMAL);
+    }
+  
   SDL_Surface *char_surface = TTF_RenderText_Blended(code_image_set->font,
                                                      c,
                                                      color);

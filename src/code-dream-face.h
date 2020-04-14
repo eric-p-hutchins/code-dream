@@ -15,34 +15,23 @@
 // You should have received a copy of the GNU General Public License
 // along with Code Dream.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef CODE_DREAM_THEME_H
-#define CODE_DREAM_THEME_H
+#ifndef CODE_DREAM_FACE_H
+#define CODE_DREAM_FACE_H
 
-#include <stdbool.h>
+#include "SDL2/SDL_pixels.h"
 
-#include "code-dream-face.h"
+typedef enum code_dream_weight_t
+  {
+   CD_NORMAL,
+   CD_BOLD
+  } code_dream_weight_t;
 
-typedef struct code_dream_theme_t code_dream_theme_t;
+typedef struct code_dream_face_t code_dream_face_t;
 
-struct code_dream_theme_t
+struct code_dream_face_t
 {
-  SDL_Color background_color;
-  code_dream_face_t default_face;
-  code_dream_face_t preproc_face;
-  code_dream_face_t string_face;
-  code_dream_face_t var_face;
-  code_dream_face_t type_face;
-  code_dream_face_t func_face;
-  code_dream_face_t keyword_face;
-  code_dream_face_t keyvalue_face;
-  code_dream_face_t comment_face;
+  SDL_Color color;
+  code_dream_weight_t weight;
 };
-
-code_dream_theme_t *
-code_dream_theme_create(const char *name,
-                        bool light,
-                        const char *basedir);
-
-void code_dream_theme_destroy(code_dream_theme_t *theme);
 
 #endif

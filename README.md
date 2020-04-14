@@ -107,8 +107,6 @@ TODO
       can be drawn in any given color, so that the color can be
       computed at draw-time without performance issues
 
-* Respect bold attribute in themes.
-
 * Try different methods of creating GIF color maps:
     * Collect stats of colors used in every frame
         * Initialize a `48M * sizeof(long)` array indexed by color value
@@ -146,6 +144,11 @@ TODO
 * Use a more efficient structure for `code_image_set_t` so that it can fetch
   requested images (by character and color) without having to scan through
   all of them.
+
+* Do something different for different levels of bold specified by
+  Emacs face spec: `(semi-bold bold extra-bold ultra-bold)`
+
+* ~~Respect bold attribute in themes.~~
 
 * ~~Allow the user to specify a theme~~
     * ~~Currently the theme used is `'tango-dark` and the colors themselves

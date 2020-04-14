@@ -87,75 +87,75 @@ code_dream_gif_writer_create(const char *basedir,
   colors[0] = (GifColorType){theme->background_color.r,
                              theme->background_color.g,
                              theme->background_color.b};
-  colors[1] = (GifColorType){theme->default_color.r,
-                             theme->default_color.g,
-                             theme->default_color.b};
-  colors[2] = (GifColorType){theme->preproc_color.r,
-                             theme->preproc_color.g,
-                             theme->preproc_color.b};
-  colors[3] = (GifColorType){theme->string_color.r,
-                             theme->string_color.g,
-                             theme->string_color.b};
-  colors[4] = (GifColorType){theme->var_color.r,
-                             theme->var_color.g,
-                             theme->var_color.b};
-  colors[5] = (GifColorType){theme->type_color.r,
-                             theme->type_color.g,
-                             theme->type_color.b};
-  colors[6] = (GifColorType){theme->func_color.r,
-                             theme->func_color.g,
-                             theme->func_color.b};
-  colors[7] = (GifColorType){theme->keyword_color.r,
-                             theme->keyword_color.g,
-                             theme->keyword_color.b};
-  colors[8] = (GifColorType){theme->keyvalue_color.r,
-                             theme->keyvalue_color.g,
-                             theme->keyvalue_color.b};
-  colors[9] = (GifColorType){theme->comment_color.r,
-                             theme->comment_color.g,
-                             theme->comment_color.b};
+  colors[1] = (GifColorType){theme->default_face.color.r,
+                             theme->default_face.color.g,
+                             theme->default_face.color.b};
+  colors[2] = (GifColorType){theme->preproc_face.color.r,
+                             theme->preproc_face.color.g,
+                             theme->preproc_face.color.b};
+  colors[3] = (GifColorType){theme->string_face.color.r,
+                             theme->string_face.color.g,
+                             theme->string_face.color.b};
+  colors[4] = (GifColorType){theme->var_face.color.r,
+                             theme->var_face.color.g,
+                             theme->var_face.color.b};
+  colors[5] = (GifColorType){theme->type_face.color.r,
+                             theme->type_face.color.g,
+                             theme->type_face.color.b};
+  colors[6] = (GifColorType){theme->func_face.color.r,
+                             theme->func_face.color.g,
+                             theme->func_face.color.b};
+  colors[7] = (GifColorType){theme->keyword_face.color.r,
+                             theme->keyword_face.color.g,
+                             theme->keyword_face.color.b};
+  colors[8] = (GifColorType){theme->keyvalue_face.color.r,
+                             theme->keyvalue_face.color.g,
+                             theme->keyvalue_face.color.b};
+  colors[9] = (GifColorType){theme->comment_face.color.r,
+                             theme->comment_face.color.g,
+                             theme->comment_face.color.b};
   code_dream_gif_writer_color_map_gradient(colors,
-                                           theme->default_color,
+                                           theme->default_face.color,
                                            theme->background_color,
                                            10,
                                            27);
   code_dream_gif_writer_color_map_gradient(colors,
-                                           theme->preproc_color,
+                                           theme->preproc_face.color,
                                            theme->background_color,
                                            37,
                                            27);
   code_dream_gif_writer_color_map_gradient(colors,
-                                           theme->string_color,
+                                           theme->string_face.color,
                                            theme->background_color,
                                            64,
                                            27);
   code_dream_gif_writer_color_map_gradient(colors,
-                                           theme->var_color,
+                                           theme->var_face.color,
                                            theme->background_color,
                                            91,
                                            27);
   code_dream_gif_writer_color_map_gradient(colors,
-                                           theme->type_color,
+                                           theme->type_face.color,
                                            theme->background_color,
                                            118,
                                            27);
   code_dream_gif_writer_color_map_gradient(colors,
-                                           theme->func_color,
+                                           theme->func_face.color,
                                            theme->background_color,
                                            145,
                                            27);
   code_dream_gif_writer_color_map_gradient(colors,
-                                           theme->keyword_color,
+                                           theme->keyword_face.color,
                                            theme->background_color,
                                            172,
                                            27);
   code_dream_gif_writer_color_map_gradient(colors,
-                                           theme->keyvalue_color,
+                                           theme->keyvalue_face.color,
                                            theme->background_color,
                                            199,
                                            27);
   code_dream_gif_writer_color_map_gradient(colors,
-                                           theme->comment_color,
+                                           theme->comment_face.color,
                                            theme->background_color,
                                            226,
                                            27);

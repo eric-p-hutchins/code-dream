@@ -8,6 +8,7 @@ code_dream_SOURCES = \
  code-dream-code-display.h \
  code-dream-code-display-set.c \
  code-dream-code-display-set.h \
+ code-dream-face.h \
  code-dream-format-type.h \
  code-dream-gif-writer.c \
  code-dream-gif-writer.h \

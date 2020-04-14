@@ -102,6 +102,13 @@
           "#000000"
         "#ffffff"))))
 
+(defun get-face-weight (theme-name face-name)
+  (let* ((attributes (face-theme-attributes theme-name face-name))
+         (weight (plist-get attributes :weight)))
+    (if (memq weight '(semi-bold bold extra-bold ultra-bold))
+        "B"
+      "N")))
+
 (defun write-background-color (theme-name)
   (let ((background (get-background theme-name)))
     (if (not (null background))
@@ -109,10 +116,12 @@
       (princ "000000"))))
 
 (defun write-face (theme-name face-name)
-  (let ((color (get-face-foreground theme-name face-name)))
+  (let ((color (get-face-foreground theme-name face-name))
+        (weight (get-face-weight theme-name face-name)))
     (if color
         (princ (substring color 1))
-      (princ "ffffff"))))
+      (princ "ffffff"))
+    (princ weight)))
 
 (defun get-default-foreground-color (face)
   (let* ((face-specs (get face 'face-defface-spec))
@@ -125,13 +134,24 @@
           "#000000"
         "#ffffff"))))
 
+(defun get-default-weight (face)
+  (let* ((face-specs (get face 'face-defface-spec))
+         (face-spec (pick-face-spec face-specs))
+         (attributes (cdr face-spec))
+         (weight (plist-get attributes :weight)))
+    (if (memq weight '(semi-bold bold extra-bold ultra-bold))
+        "B"
+      "N")))
+
 (defun write-default (face-name)
-  (let ((color (get-default-foreground-color face-name)))
+  (let ((color (get-default-foreground-color face-name))
+        (weight (get-default-weight face-name)))
     (if color
         (princ (substring color 1))
       (if (eq background 'light)
           (princ "000000")
-        (princ "ffffff")))))
+        (princ "ffffff")))
+    (princ weight)))
 
 (defun write-defaults ()
   (if (eq background 'light)
