@@ -19,7 +19,7 @@
 
 code_dream_image_t *
 code_dream_image_create(char c,
-                        code_dream_format_type_t type,
+                        code_dream_face_t face,
                         SDL_Texture *image,
                         int x,
                         int y,
@@ -29,7 +29,7 @@ code_dream_image_create(char c,
   code_dream_image_t *code_dream_image =
     (code_dream_image_t*)malloc(sizeof(code_dream_image_t));
   code_dream_image->c = c;
-  code_dream_image->type = type;
+  code_dream_image->face = face;
   code_dream_image->image = image;
   code_dream_image->x = x;
   code_dream_image->y = y;

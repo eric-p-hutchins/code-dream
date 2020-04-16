@@ -291,12 +291,12 @@ code_dream_gif_writer_draw_frame(code_dream_gif_writer_t *writer,
       displays->displays[i]->code_image_set = old_cis;
     }
 
+  Uint8 *pixels = (Uint8*)surface->pixels;
   int j;
   for (i = 0; i < surface->h; ++i)
     {
       for (j = 0; j < surface->w; ++j)
         {
-          Uint8 *pixels = (Uint8*)surface->pixels;
           int r = pixels[i * surface->pitch + j * 3];
           int g = pixels[i * surface->pitch + j * 3 + 1];
           int b = pixels[i * surface->pitch + j * 3 + 2];

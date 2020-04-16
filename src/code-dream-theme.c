@@ -138,6 +138,44 @@ code_dream_theme_create(const char *name,
   return theme;
 }
 
+code_dream_face_t
+code_dream_theme_format_type_to_face(code_dream_theme_t *theme,
+                                     code_dream_format_type_t type)
+{
+  code_dream_face_t face = theme->default_face;
+  switch(type)
+    {
+    case CODR_PREPROC:
+      face = theme->preproc_face;
+      break;
+    case CODR_STRING:
+      face = theme->string_face;
+      break;
+    case CODR_KEYWORD:
+      face = theme->keyword_face;
+      break;
+    case CODR_TYPE:
+      face = theme->type_face;
+      break;
+    case CODR_FUNCTION:
+      face = theme->func_face;
+      break;
+    case CODR_IDENTIFIER:
+      face = theme->var_face;
+      break;
+    case CODR_KEYVALUE:
+      face = theme->keyvalue_face;
+      break;
+    case CODR_COMMENT:
+      face = theme->comment_face;
+      break;
+    default:
+      face = theme->default_face;
+      break;
+    }
+  return face;
+}
+
 void
 code_dream_theme_destroy(code_dream_theme_t *theme)
 {

@@ -34,16 +34,52 @@ code_dream_code_display_set_create(code_source_t *code_source,
   return set;
 }
 
+code_dream_code_display_t **
+code_dream_code_display_set_displays_by_distance_desc
+(code_dream_code_display_set_t *set)
+{
+  code_dream_code_display_t **displays =
+    (code_dream_code_display_t**)malloc(sizeof(code_dream_code_display_t*)
+                                        * set->n_displays);
+  int i, j;
+  for (i = 0; i < set->n_displays; ++i)
+    {
+      displays[i] = set->displays[i];
+    }
+  for (i = 0; i < set->n_displays; ++i)
+    {
+      int biggest_index = i;
+      code_dream_code_display_t *biggest = displays[biggest_index];
+      for (j = i + 1; j < set->n_displays; ++j)
+        {
+          if (displays[j]->dist > biggest->dist)
+            {
+              biggest_index = j;
+              biggest = displays[j];
+            }
+        }
+      if (biggest_index != i)
+        {
+          code_dream_code_display_t *tmp = displays[i];
+          displays[i] = displays[biggest_index];
+          displays[biggest_index] = tmp;
+        }
+    }
+  return displays;
+}
+
 void
 code_dream_code_display_set_draw(code_dream_code_display_set_t *set,
                                  SDL_Renderer *renderer)
 {
+  code_dream_code_display_t **displays =
+    code_dream_code_display_set_displays_by_distance_desc(set);
   int i;
   for (i = 0; i < set->n_displays; ++i)
     {
-      code_dream_code_display_draw(set->displays[i],
-                                   renderer);
+      code_dream_code_display_draw(displays[i], renderer);
     }
+  free(displays);
 }
 
 void

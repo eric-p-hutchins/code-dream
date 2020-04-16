@@ -50,14 +50,10 @@ code_dream_code_display_draw_char(code_dream_code_display_t *display,
                                   code_image_set_t *code_image_set,
                                   SDL_Renderer *renderer)
 {
-  code_dream_image_t *image =
-    code_image_set_get_char_image(display->code_image_set,
-                                  char_info->c,
-                                  char_info->type);
   int x = char_info->col * code_image_set->font_width;
   int y = (char_info->row - 1) * code_image_set->font_height;
-  double code_width = code_image_set->font_width * 80;
   int zoom_y = code_image_set->font_height * display->line_to_zoom_under;
+  double code_width = code_image_set->font_width * 80;
   SDL_FRect rect;
   rect.x = display->screen_width / 2 + (-code_width / 2 + x) / display->dist
     * display->screen_height / 400.0;
@@ -65,15 +61,51 @@ code_dream_code_display_draw_char(code_dream_code_display_t *display,
     * display->screen_height / 400.0;
   rect.x += (rand() % 3 - 1) * display->screen_height / 200.0 / display->dist;
   rect.y += (rand() % 3 - 1) * display->screen_height / 200.0 / display->dist;
-  rect.w = image->w / display->dist * display->screen_height / 400.0;
-  rect.h = image->h / display->dist * display->screen_height / 400.0;
+  rect.w = code_image_set->font_width / display->dist * display->screen_height / 400.0;
+  rect.h = code_image_set->font_height / display->dist * display->screen_height / 400.0;
+  if (rect.x >= display->screen_width
+      || rect.y >= display->screen_height
+      || (rect.x + rect.w) <= 0
+      || (rect.y + rect.h) <= 0)
+    {
+      return;
+    }
+
+  code_dream_theme_t *theme = code_image_set->theme;
+  code_dream_face_t face =
+    code_dream_theme_format_type_to_face(theme, char_info->type);
+  SDL_Color color = face.color;
   double dist_range = display->max_dist - display->min_dist;
-  int alpha = (dist_range - (display->dist - display->min_dist)) / dist_range
-    * 256;
-  if (alpha < 0) alpha = 0;
-  if (alpha > 255) alpha = 255;
-  SDL_SetTextureAlphaMod(image->image, alpha);
-  SDL_RenderCopyF(renderer, image->image, NULL, &rect);
+  double how_close = dist_range - (display->dist - display->min_dist);
+  double alpha = 0;
+  int alpha_level = how_close * 16 / dist_range;
+  if (alpha_level < 0) alpha_level = 0;
+  if (alpha_level > 15) alpha_level = 15;
+  alpha = alpha_level / 15.0;
+  color.r =
+    color.r * alpha + theme->background_color.r * (1.0 - alpha);
+  if (color.r < 0) color.r = 0;
+  if (color.r > 255) color.r = 255;
+  color.g =
+    color.g * alpha + theme->background_color.g * (1.0 - alpha);
+  if (color.g < 0) color.g = 0;
+  if (color.g > 255) color.g = 255;
+  color.b =
+    color.b * alpha + theme->background_color.b * (1.0 - alpha);
+  if (color.b < 0) color.b = 0;
+  if (color.b > 255) color.b = 255;
+  char c[2];
+  c[0] = char_info->c;
+  c[1] = '\0';
+  code_dream_image_t *image =
+    code_image_set_get_char_image(display->code_image_set,
+                                  char_info->c,
+                                  (code_dream_face_t){color, face.weight});
+
+  if (image != NULL)
+    {
+      SDL_RenderCopyF(renderer, image->image, NULL, &rect);
+    }
 }
 
 void

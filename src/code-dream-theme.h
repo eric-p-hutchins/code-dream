@@ -20,6 +20,7 @@
 
 #include <stdbool.h>
 
+#include "code-dream-format-type.h"
 #include "code-dream-face.h"
 
 typedef struct code_dream_theme_t code_dream_theme_t;
@@ -42,6 +43,10 @@ code_dream_theme_t *
 code_dream_theme_create(const char *name,
                         bool light,
                         const char *basedir);
+
+code_dream_face_t
+code_dream_theme_format_type_to_face(code_dream_theme_t *theme,
+                                     code_dream_format_type_t type);
 
 void code_dream_theme_destroy(code_dream_theme_t *theme);
 

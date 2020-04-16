@@ -97,43 +97,13 @@ code_image_set_loading(code_image_set_t *code_image_set)
   return !code_image_set->loaded;
 }
 
-code_dream_image_t *
-code_image_set_create_image(code_image_set_t *code_image_set,
-                            code_dream_char_info_t *char_info)
+void
+code_image_set_create_images(code_image_set_t *code_image_set,
+                             code_dream_char_info_t *char_info)
 {
   code_dream_theme_t *theme = code_image_set->theme;
-  code_dream_face_t face = theme->default_face;
-  switch(char_info->type)
-    {
-    case CODR_PREPROC:
-      face = theme->preproc_face;
-      break;
-    case CODR_STRING:
-      face = theme->string_face;
-      break;
-    case CODR_KEYWORD:
-      face = theme->keyword_face;
-      break;
-    case CODR_TYPE:
-      face = theme->type_face;
-      break;
-    case CODR_FUNCTION:
-      face = theme->func_face;
-      break;
-    case CODR_IDENTIFIER:
-      face = theme->var_face;
-      break;
-    case CODR_KEYVALUE:
-      face = theme->keyvalue_face;
-      break;
-    case CODR_COMMENT:
-      face = theme->comment_face;
-      break;
-    default:
-      face = theme->default_face;
-      break;
-    }
-  SDL_Color color = face.color;
+  code_dream_face_t face =
+    code_dream_theme_format_type_to_face(theme, char_info->type);
   char c[2];
   c[0] = char_info->c;
   c[1] = '\0';
@@ -147,40 +117,75 @@ code_image_set_create_image(code_image_set_t *code_image_set,
       TTF_SetFontStyle(code_image_set->font, TTF_STYLE_NORMAL);
     }
   
-  SDL_Surface *char_surface = TTF_RenderText_Blended(code_image_set->font,
-                                                     c,
-                                                     color);
-  if (char_surface == NULL)
+  SDL_Surface *char_surface;
+  int i;
+  for (i = 0; i <= 15; ++i)
     {
-      fprintf(stderr, "error: %s\n", TTF_GetError());
-      return NULL;
+      SDL_Color color = face.color;
+      double alpha = i / 15.0;
+      color.r =
+        color.r * alpha + theme->background_color.r * (1.0 - alpha);
+      if (color.r < 0) color.r = 0;
+      if (color.r > 255) color.r = 255;
+      color.g =
+        color.g * alpha + theme->background_color.g * (1.0 - alpha);
+      if (color.g < 0) color.g = 0;
+      if (color.g > 255) color.g = 255;
+      color.b =
+        color.b * alpha + theme->background_color.b * (1.0 - alpha);
+      if (color.b < 0) color.b = 0;
+      if (color.b > 255) color.b = 255;
+      code_dream_face_t alpha_face = (code_dream_face_t){color, face.weight};
+      if (code_image_set_get_char_image(code_image_set,
+                                        char_info->c,
+                                        alpha_face) != NULL)
+        {
+          continue;
+        }
+      char_surface = TTF_RenderText_Blended(code_image_set->font,
+                                            c,
+                                            color);
+      if (char_surface == NULL)
+        {
+          fprintf(stderr, "error: %s\n", TTF_GetError());
+          return;
+        }
+      SDL_Texture *texture =
+        SDL_CreateTextureFromSurface(code_image_set->renderer, char_surface);
+      if (texture == NULL)
+        {
+          fprintf(stderr, "Error creating texture: %s\n", SDL_GetError());
+        }
+      code_dream_image_t *image =
+        code_dream_image_create(char_info->c,
+                                alpha_face,
+                                texture,
+                                code_image_set->font_width * char_info->col,
+                                code_image_set->font_height * (char_info->row - 1),
+                                char_surface->w,
+                                char_surface->h);
+      ++code_image_set->n_images;
+      code_image_set->images =
+        (code_dream_image_t **)realloc(code_image_set->images,
+                                       sizeof(code_dream_image_t*)
+                                       * code_image_set->n_images);
+      code_image_set->images[code_image_set->n_images - 1] = image;
     }
-  SDL_Texture *texture =
-    SDL_CreateTextureFromSurface(code_image_set->renderer, char_surface);
-  if (texture == NULL)
-    {
-      fprintf(stderr, "Error creating texture: %s\n", SDL_GetError());
-    }
-  code_dream_image_t *image =
-    code_dream_image_create(char_info->c,
-                            char_info->type,
-                            texture,
-                            code_image_set->font_width * char_info->col,
-                            code_image_set->font_height * (char_info->row - 1),
-                            char_surface->w,
-                            char_surface->h);
-  return image;
 }
 
 code_dream_image_t *
 code_image_set_get_char_image(code_image_set_t *set,
                               char c,
-                              code_dream_format_type_t type)
+                              code_dream_face_t face)
 {
   int i;
   for (i = 0; i < set->n_images; ++i)
     {
-      if (set->images[i]->c == c && set->images[i]->type == type)
+      if (set->images[i]->c == c
+          && set->images[i]->face.color.r == face.color.r
+          && set->images[i]->face.color.g == face.color.g
+          && set->images[i]->face.color.b == face.color.b
+          && set->images[i]->face.weight == face.weight)
         {
           return set->images[i];
         }
@@ -207,22 +212,19 @@ code_image_set_load(void *data)
       code_dream_char_info_set_t *set = sets[j];
       for(i = 0; i < set->n_infos; ++i)
         {
+          code_dream_face_t face =
+            code_dream_theme_format_type_to_face(code_image_set->theme,
+                                                 set->infos[i]->type);
           code_dream_image_t *image =
             code_image_set_get_char_image(code_image_set,
                                           set->infos[i]->c,
-                                          set->infos[i]->type);
+                                          face);
           // If the image with character and type doesn't exist yet,
           // then create it
           if (image == NULL)
             {
-              image = code_image_set_create_image(code_image_set,
-                                                  set->infos[i]);
-              ++code_image_set->n_images;
-              code_image_set->images =
-                (code_dream_image_t **)realloc(code_image_set->images,
-                                               sizeof(code_dream_image_t*)
-                                               * code_image_set->n_images);
-              code_image_set->images[code_image_set->n_images - 1] = image;
+              code_image_set_create_images(code_image_set,
+                                           set->infos[i]);
             }
         }
     }

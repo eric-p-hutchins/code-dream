@@ -58,7 +58,7 @@ code_image_set_load(void *data);
 code_dream_image_t *
 code_image_set_get_char_image(code_image_set_t *set,
                               char c,
-                              code_dream_format_type_t type);
+                              code_dream_face_t face);
 
 void
 code_image_set_destroy(code_image_set_t *set);

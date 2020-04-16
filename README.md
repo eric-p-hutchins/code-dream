@@ -99,13 +99,17 @@ TODO
     * Write a little contrived emacs theme and verify that the output
       of `theme.el` matches what you expect
 
-* In the fading-in effect, don't just make it translucent but merge
-  the color with the background color (still at full opacity) before
-  drawing so that it blocks what's behind it, like fog
-    * This may require ditching the idea of creating textures up-front
-      and instead somehow getting a "glyph" or some kind of shape that
-      can be drawn in any given color, so that the color can be
-      computed at draw-time without performance issues
+* See if it's possible to draw the characters by "glyph" shape that is stored
+  so that pre-rendered textures don't need to be used. This may require
+  ditching SDL_ttf and instead using freetype or something like that directly
+
+* Investigate streaming the GIF data to the file somehow so that it
+  doesn't have to keep it all in memory until it is written. At this
+  point it takes a lot of memory to write the GIF because until the
+  program exits and we run `EGIFSpew` it keeps all the stored images
+  in memory and they can take up a lot of space. Maybe using the
+  lower-level API instead of EGifSpew, we can free the stored images
+  as we go?
 
 * Try different methods of creating GIF color maps:
     * Collect stats of colors used in every frame
@@ -124,6 +128,7 @@ TODO
 
 * Make a way to export to .mov directly so that I don't need to screen
   record to actually get the background video
+    * I'm thinking ffmpeg has a library for doing something like that
 
 * Allow using arbitrary font choices, possibly installed on the system
 
@@ -141,12 +146,16 @@ TODO
       often. Instead, jump through the source in some regular pattern
       so that a variety is seen
 
-* Use a more efficient structure for `code_image_set_t` so that it can fetch
-  requested images (by character and color) without having to scan through
-  all of them.
+* Use a more efficient structure for `code_image_set_t` so that it can
+  fetch requested images (by character, color, and weight) without
+  having to scan through all of them.
 
 * Do something different for different levels of bold specified by
   Emacs face spec: `(semi-bold bold extra-bold ultra-bold)`
+
+* ~~In the fading-in effect, don't just make it translucent but merge
+  the color with the background color (still at full opacity) before
+  drawing so that it blocks what's behind it, like fog~~
 
 * ~~Respect bold attribute in themes.~~
 
