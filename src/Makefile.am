@@ -33,11 +33,6 @@ code_dream_LDFLAGS = $(SDL_LIBS)
 code_dream_datadir = $(datadir)/code-dream
 code_dream_CFLAGS +=  -DDATADIR=\"$(code_dream_datadir)\"
 
-
-
-code_dream_LDFLAGS += -lswresample -lavutil
-
-
 dist_code_dream_data_DATA = \
  ../highlight.el \
  ../theme.el \

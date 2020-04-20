@@ -99,6 +99,10 @@ Examples:
 TODO
 ----
 
+* Fix frame rate of realtime video to not always use constant delay
+  but only wait the difference between the time it took to draw and
+  the frame time
+
 * Don't duplicate the drawing calls, but instead, in the main file,
   split out a common draw function that uses a passed in renderer and
   then call that from the main draw and after drawing to screen, draw
