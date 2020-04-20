@@ -99,6 +99,12 @@ Examples:
 TODO
 ----
 
+* Make a mode to just generate the output file without showing the
+  realtime version on screen
+
+* Add ability to pass more options to gif and video output (bitrate,
+  framerate, colors, etc.)
+
 * Fix frame rate of realtime video to not always use constant delay
   but only wait the difference between the time it took to draw and
   the frame time
