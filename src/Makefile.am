@@ -19,6 +19,8 @@ code_dream_SOURCES = \
  code-dream-options.h \
  code-dream-theme.c \
  code-dream-theme.h \
+ code-dream-video-writer.c \
+ code-dream-video-writer.h \
  code-image-set.c \
  code-image-set.h \
  code-source.c \
@@ -30,6 +32,11 @@ code_dream_LDFLAGS = $(SDL_LIBS)
 
 code_dream_datadir = $(datadir)/code-dream
 code_dream_CFLAGS +=  -DDATADIR=\"$(code_dream_datadir)\"
+
+
+
+code_dream_LDFLAGS += -lswresample -lavutil
+
 
 dist_code_dream_data_DATA = \
  ../highlight.el \

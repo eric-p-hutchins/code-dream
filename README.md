@@ -14,6 +14,7 @@ Dependencies
   - SDL2
   - SDL2_ttf
   - libgif
+  - ffmpeg
 
 Build
 -----
@@ -91,8 +92,21 @@ Examples:
     Generate an animated GIF called `tango-dark.gif` (what I ran to
     create the above GIF file)
 
+* `code-dream --width 240 --height 150 -t tango-dark -o tango-dark.mov src/main.c`
+
+    Generate a `.mov` video file of the animation.
+
 TODO
 ----
+
+* Don't duplicate the drawing calls, but instead, in the main file,
+  split out a common draw function that uses a passed in renderer and
+  then call that from the main draw and after drawing to screen, draw
+  to `gif_writer` renderers or `video_writer` renderers
+
+* Unify the gif writer and video writer objects into one that is smart
+  enough to know what to do for whichever format was selected,
+  possibly using ffmpeg to create the gif instead of libgif
 
 * Write tests, specifically around parsing themes properly, but look
   for other things to verify
@@ -126,10 +140,6 @@ TODO
           resulting file will be bigger (because it needs to write a color
           map for each frame)
 
-* Make a way to export to .mov directly so that I don't need to screen
-  record to actually get the background video
-    * I'm thinking ffmpeg has a library for doing something like that
-
 * Allow using arbitrary font choices, possibly installed on the system
 
 * Optimize loading of code
@@ -152,6 +162,10 @@ TODO
 
 * Do something different for different levels of bold specified by
   Emacs face spec: `(semi-bold bold extra-bold ultra-bold)`
+
+* ~~Make a way to export to .mov directly so that I don't need to screen
+  record to actually get the background video~~
+    * ~~I'm thinking ffmpeg has a library for doing something like that~~
 
 * ~~In the fading-in effect, don't just make it translucent but merge
   the color with the background color (still at full opacity) before

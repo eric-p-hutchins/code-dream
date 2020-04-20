@@ -26,6 +26,7 @@
 #include "code-dream-image.h"
 #include "code-dream-loading-screen.h"
 #include "code-dream-options.h"
+#include "code-dream-video-writer.h"
 #include "code-image-set.h"
 #include "code-source.h"
 #include "config.h"
@@ -51,7 +52,8 @@ draw(code_dream_theme_t *theme,
      code_source_t *code_source,
      code_image_set_t *code_image_set,
      SDL_Window *window,
-     code_dream_gif_writer_t *gif_writer)
+     code_dream_gif_writer_t *gif_writer,
+     code_dream_video_writer_t *video_writer)
 {
   SDL_Renderer *renderer = SDL_GetRenderer(window);
   if (code_source_loading(code_source)
@@ -71,6 +73,10 @@ draw(code_dream_theme_t *theme,
       if (gif_writer != NULL && displays->n_displays > 0)
         {
           code_dream_gif_writer_draw_frame(gif_writer, displays);
+        }
+      if (video_writer != NULL && displays->n_displays > 0)
+        {
+          code_dream_video_writer_write_frame(video_writer, displays);
         }
     }
 
@@ -235,10 +241,11 @@ parse_args(int argc, char *argv[])
                                 "output", &i,
                                 &options->output))
         {
-          if (!ends_with(options->output, ".gif"))
+          if (!ends_with(options->output, ".gif")
+              && !ends_with(options->output, ".mov"))
             {
               fprintf(stderr, "%s\n",
-                      "warning: output ignored. Only GIF is supported.");
+                      "warning: output ignored. Only GIF and MOV are supported.");
               free(options->output);
               options->output = NULL;
             }
@@ -388,15 +395,29 @@ main (int argc, char *argv[])
       exit(0);
     }
   code_dream_gif_writer_t *gif_writer = NULL;
+  code_dream_video_writer_t *video_writer = NULL;
   if (options->output != NULL)
     {
-      gif_writer =
-        code_dream_gif_writer_create(basedir,
-                                     options->output,
-                                     code_source,
-                                     theme,
-                                     options->screen_width,
-                                     options->screen_height);
+      if (ends_with(options->output, ".gif"))
+        {
+          gif_writer =
+            code_dream_gif_writer_create(basedir,
+                                         options->output,
+                                         code_source,
+                                         theme,
+                                         options->screen_width,
+                                         options->screen_height);
+        }
+      if (ends_with(options->output, ".mov"))
+        {
+          video_writer =
+            code_dream_video_writer_create(basedir,
+                                           options->output,
+                                           code_source,
+                                           theme,
+                                           options->screen_width,
+                                           options->screen_height);
+        }
     }
   code_dream_code_display_set_t *displays =
     code_dream_code_display_set_create(code_source,
@@ -425,15 +446,24 @@ main (int argc, char *argv[])
            code_source,
            code_image_set,
            window,
-           gif_writer);
+           gif_writer,
+           video_writer);
       SDL_Delay(20);
       ++t;
     }
 
   if (options->output != NULL)
     {
-      code_dream_gif_writer_write_gif(gif_writer);
-      code_dream_gif_writer_destroy(gif_writer);
+      if (gif_writer != NULL)
+        {
+          code_dream_gif_writer_write_gif(gif_writer);
+          code_dream_gif_writer_destroy(gif_writer);
+        }
+      if (video_writer != NULL)
+        {
+          code_dream_video_writer_finish(video_writer);
+          code_dream_video_writer_destroy(video_writer);
+        }
     }
   code_dream_theme_destroy(theme);
   code_dream_loading_screen_destroy(loading_screen);

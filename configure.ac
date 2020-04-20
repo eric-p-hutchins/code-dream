@@ -1,4 +1,4 @@
-AC_INIT([code-dream],[0.1.4],[eric.p.hutchins@gmail.com])
+AC_INIT([code-dream],[0.1.5],[eric.p.hutchins@gmail.com])
 AC_CONFIG_SRCDIR([src/code-dream-options.h])
 AC_CONFIG_HEADERS([src/config.h])
 
@@ -9,6 +9,12 @@ AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 AM_PATH_SDL2([2.0.0])
 
 AC_CHECK_LIB([SDL2_ttf],[TTF_OpenFont],[LIBS="$LIBS -lSDL2_ttf"])
+
+AC_CHECK_LIB([avformat],[avformat_alloc_context],[LIBS="$LIBS -lavformat"])
+
+AC_CHECK_LIB([avcodec],[avcodec_alloc_context3],[LIBS="$LIBS -lavcodec"])
+
+AC_CHECK_LIB([swscale],[sws_getContext],[LIBS="$LIBS -lswscale"])
 
 AC_CHECK_LIB([gif],[EGifSpew],[LIBS="$LIBS -lgif"])
 
