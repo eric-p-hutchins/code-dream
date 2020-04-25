@@ -21,13 +21,33 @@ code_image_set_t *
 code_image_set_create(const char *basedir,
                       code_source_t *code_source,
                       code_dream_theme_t *theme,
-                      SDL_Renderer *renderer)
+                      SDL_Renderer *renderer,
+                      ...)
 {
   code_image_set_t *code_image_set =
     (code_image_set_t*)malloc(sizeof(code_image_set_t));
   code_image_set->code_source = code_source;
   code_image_set->theme = theme;
-  code_image_set->renderer = renderer;
+
+  code_image_set->n_renderers = 1;
+  code_image_set->renderers =
+    (SDL_Renderer**)malloc(sizeof(SDL_Renderer*));
+  code_image_set->renderers[0] = renderer;
+  va_list more_renderers;
+
+  va_start(more_renderers, renderer);
+  SDL_Renderer *another_renderer = va_arg(more_renderers, SDL_Renderer *);
+  while (another_renderer != NULL)
+    {
+      size_t n = ++code_image_set->n_renderers;
+      code_image_set->renderers =
+        (SDL_Renderer**)realloc(code_image_set->renderers,
+                                sizeof(SDL_Renderer*) * n);
+      code_image_set->renderers[n - 1] = another_renderer;
+      another_renderer = va_arg(more_renderers, SDL_Renderer *);
+    }
+  va_end(more_renderers);
+
   code_image_set->font_path = (char*)malloc(strlen(basedir)
                                               + strlen("/DejaVuSansMono.ttf")
                                               + 1);
@@ -79,8 +99,17 @@ code_image_set_create(const char *basedir,
       free(code_image_set);
       return NULL;
   }
-  code_image_set->images = NULL;
-  code_image_set->n_images = 0;
+  code_image_set->images =
+    (code_dream_image_t***)malloc(sizeof(code_dream_image_t**)
+                                  * code_image_set->n_renderers);
+  code_image_set->n_images = (int*)malloc(sizeof(int)
+                                          * code_image_set->n_renderers);
+  int i;
+  for (i = 0; i < code_image_set->n_renderers; ++i)
+    {
+      code_image_set->images[i] = NULL;
+      code_image_set->n_images[i] = 0;
+    }
   code_image_set->loaded = false;
 
   SDL_Thread *thread =
@@ -98,9 +127,11 @@ code_image_set_loading(code_image_set_t *code_image_set)
 }
 
 void
-code_image_set_create_images(code_image_set_t *code_image_set,
-                             code_dream_char_info_t *char_info)
+code_image_set_create_images_for_renderer(code_image_set_t *code_image_set,
+                                          code_dream_char_info_t *char_info,
+                                          int renderer_index)
 {
+  SDL_Renderer *renderer = code_image_set->renderers[renderer_index];
   code_dream_theme_t *theme = code_image_set->theme;
   code_dream_face_t face =
     code_dream_theme_format_type_to_face(theme, char_info->type);
@@ -136,9 +167,10 @@ code_image_set_create_images(code_image_set_t *code_image_set,
       if (color.b < 0) color.b = 0;
       if (color.b > 255) color.b = 255;
       code_dream_face_t alpha_face = (code_dream_face_t){color, face.weight};
-      if (code_image_set_get_char_image(code_image_set,
-                                        char_info->c,
-                                        alpha_face) != NULL)
+      if (code_image_set_get_char_image_for_renderer(code_image_set,
+                                                     char_info->c,
+                                                     alpha_face,
+                                                     renderer) != NULL)
         {
           continue;
         }
@@ -151,7 +183,8 @@ code_image_set_create_images(code_image_set_t *code_image_set,
           return;
         }
       SDL_Texture *texture =
-        SDL_CreateTextureFromSurface(code_image_set->renderer, char_surface);
+        SDL_CreateTextureFromSurface(code_image_set->renderers[renderer_index],
+                                     char_surface);
       if (texture == NULL)
         {
           fprintf(stderr, "Error creating texture: %s\n", SDL_GetError());
@@ -164,30 +197,52 @@ code_image_set_create_images(code_image_set_t *code_image_set,
                                 code_image_set->font_height * (char_info->row - 1),
                                 char_surface->w,
                                 char_surface->h);
-      ++code_image_set->n_images;
-      code_image_set->images =
-        (code_dream_image_t **)realloc(code_image_set->images,
+      int n_images = ++code_image_set->n_images[renderer_index];
+      code_image_set->images[renderer_index] =
+        (code_dream_image_t **)realloc(code_image_set->images[renderer_index],
                                        sizeof(code_dream_image_t*)
-                                       * code_image_set->n_images);
-      code_image_set->images[code_image_set->n_images - 1] = image;
+                                       * n_images);
+      code_image_set->images[renderer_index][n_images - 1] =
+        image;
     }
 }
 
-code_dream_image_t *
-code_image_set_get_char_image(code_image_set_t *set,
-                              char c,
-                              code_dream_face_t face)
+int
+code_image_set_get_renderer_index(code_image_set_t *set, SDL_Renderer *renderer)
 {
   int i;
-  for (i = 0; i < set->n_images; ++i)
+  for (i = 0; i < set->n_renderers; ++i)
     {
-      if (set->images[i]->c == c
-          && set->images[i]->face.color.r == face.color.r
-          && set->images[i]->face.color.g == face.color.g
-          && set->images[i]->face.color.b == face.color.b
-          && set->images[i]->face.weight == face.weight)
+      if (renderer == set->renderers[i])
         {
-          return set->images[i];
+          return i;
+        }
+    }
+  return -1;
+}
+
+code_dream_image_t *
+code_image_set_get_char_image_for_renderer(code_image_set_t *set,
+                                           char c,
+                                           code_dream_face_t face,
+                                           SDL_Renderer *renderer)
+{
+  int renderer_index = code_image_set_get_renderer_index(set, renderer);
+  if (renderer_index < 0)
+    {
+      fprintf(stderr, "Error: Renderer not found for code-image-set!\n");
+      return NULL;
+    }
+  int i;
+  for (i = 0; i < set->n_images[renderer_index]; ++i)
+    {
+      if (set->images[renderer_index][i]->c == c
+          && set->images[renderer_index][i]->face.color.r == face.color.r
+          && set->images[renderer_index][i]->face.color.g == face.color.g
+          && set->images[renderer_index][i]->face.color.b == face.color.b
+          && set->images[renderer_index][i]->face.weight == face.weight)
+        {
+          return set->images[renderer_index][i];
         }
     }
   return NULL;
@@ -206,7 +261,7 @@ code_image_set_load(void *data)
   size_t n_sets;
   code_source_get_char_info_sets(code_image_set->code_source, &sets, &n_sets);
 
-  int i, j;
+  int i, j, k;
   for (j = 0; j < n_sets; ++j)
     {
       code_dream_char_info_set_t *set = sets[j];
@@ -215,16 +270,23 @@ code_image_set_load(void *data)
           code_dream_face_t face =
             code_dream_theme_format_type_to_face(code_image_set->theme,
                                                  set->infos[i]->type);
-          code_dream_image_t *image =
-            code_image_set_get_char_image(code_image_set,
-                                          set->infos[i]->c,
-                                          face);
-          // If the image with character and type doesn't exist yet,
-          // then create it
-          if (image == NULL)
+          for (k = 0; k < code_image_set->n_renderers; ++k)
             {
-              code_image_set_create_images(code_image_set,
-                                           set->infos[i]);
+              SDL_Renderer *renderer =
+                code_image_set->renderers[k];
+              code_dream_image_t *image =
+                code_image_set_get_char_image_for_renderer(code_image_set,
+                                                           set->infos[i]->c,
+                                                           face,
+                                                           renderer);
+              // If the image with character and type doesn't exist
+              // yet for this renderer, then create it
+              if (image == NULL)
+                {
+                  code_image_set_create_images_for_renderer(code_image_set,
+                                                            set->infos[i],
+                                                            k);
+                }
             }
         }
     }
@@ -236,11 +298,16 @@ code_image_set_load(void *data)
 void
 code_image_set_destroy(code_image_set_t *code_image_set)
 {
-  int i;
-  for (i = 0; i < code_image_set->n_images; ++i)
+  int i, j;
+  for (j = 0; j < code_image_set->n_renderers; ++j)
     {
-      code_dream_image_destroy(code_image_set->images[i]);
+      for (i = 0; i < code_image_set->n_images[j]; ++i)
+        {
+          code_dream_image_destroy(code_image_set->images[j][i]);
+        }
+      free(code_image_set->images[j]);
     }
+  free(code_image_set->n_images);
   free(code_image_set->images);
   free(code_image_set->font_path);
   free(code_image_set);

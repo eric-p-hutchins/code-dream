@@ -34,9 +34,10 @@ struct code_image_set_t
   code_source_t *code_source;
   code_dream_theme_t *theme;
   char *font_path;
-  SDL_Renderer *renderer;
-  code_dream_image_t **images;
-  int n_images;
+  int n_renderers;
+  SDL_Renderer **renderers;
+  code_dream_image_t ***images;
+  int *n_images;
   TTF_Font *font;
   int font_width;
   int font_height;
@@ -47,7 +48,8 @@ code_image_set_t *
 code_image_set_create(const char *basedir,
                       code_source_t *code_source,
                       code_dream_theme_t *theme,
-                      SDL_Renderer *renderer);
+                      SDL_Renderer *renderer,
+                      ...);
 
 bool
 code_image_set_loading(code_image_set_t *code_image_set);
@@ -56,9 +58,10 @@ int
 code_image_set_load(void *data);
 
 code_dream_image_t *
-code_image_set_get_char_image(code_image_set_t *set,
-                              char c,
-                              code_dream_face_t face);
+code_image_set_get_char_image_for_renderer(code_image_set_t *set,
+                                           char c,
+                                           code_dream_face_t face,
+                                           SDL_Renderer *renderer);
 
 void
 code_image_set_destroy(code_image_set_t *set);

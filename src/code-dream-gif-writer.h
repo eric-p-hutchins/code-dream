@@ -39,7 +39,6 @@ struct code_dream_gif_writer_priv_t
 {
   SDL_Renderer *renderer;
   SDL_Surface *surface;
-  code_image_set_t *code_image_set;
   GifFileType *gif_file;
 };
 
@@ -50,6 +49,9 @@ code_dream_gif_writer_create(const char *basedir,
                              code_dream_theme_t *theme,
                              int screen_width,
                              int screen_height);
+
+SDL_Renderer *
+code_dream_gif_writer_get_renderer(code_dream_gif_writer_t *writer);
 
 void
 code_dream_gif_writer_draw_frame(code_dream_gif_writer_t *writer,

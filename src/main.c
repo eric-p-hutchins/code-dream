@@ -46,6 +46,20 @@ handle_events(bool *running)
 }
 
 void
+draw_to_renderer(code_dream_theme_t *theme,
+                 code_dream_code_display_set_t *displays,
+                 SDL_Renderer *renderer)
+{
+  SDL_SetRenderDrawColor(renderer,
+                         theme->background_color.r,
+                         theme->background_color.g,
+                         theme->background_color.b,
+                         255);
+  SDL_RenderClear(renderer);
+  code_dream_code_display_set_draw(displays, renderer);
+}
+
+void
 draw(code_dream_theme_t *theme,
      code_dream_code_display_set_t *displays,
      code_dream_loading_screen_t *loading_screen,
@@ -63,19 +77,19 @@ draw(code_dream_theme_t *theme,
     }
   else
     {
-      SDL_SetRenderDrawColor(renderer,
-                             theme->background_color.r,
-                             theme->background_color.g,
-                             theme->background_color.b,
-                             255);
-      SDL_RenderClear(renderer);
-      code_dream_code_display_set_draw(displays, renderer);
+      draw_to_renderer(theme, displays, renderer);
       if (gif_writer != NULL && displays->n_displays > 0)
         {
+          draw_to_renderer(theme,
+                           displays,
+                           code_dream_gif_writer_get_renderer(gif_writer));
           code_dream_gif_writer_draw_frame(gif_writer, displays);
         }
       if (video_writer != NULL && displays->n_displays > 0)
         {
+          draw_to_renderer(theme,
+                           displays,
+                           code_dream_video_writer_get_renderer(video_writer));
           code_dream_video_writer_write_frame(video_writer, displays);
         }
     }
@@ -298,7 +312,8 @@ char *help_text = "Usage: code-dream [OPTION]... [filename]\n"
   "      --height                    set screen height.\n"
   "  -h, --help                      display this help and exit.\n"
   "  -o, --output                    generate output file.\n"
-  "                                    only GIF is currently supported.\n"
+  "                                    only GIF and MOV are currently\n"
+  "                                    supported.\n"
   "      --version                   display version information and exit.\n"
   "      --width                     set screen width.\n"
   "  -t, --theme                     set theme.\n"
@@ -376,20 +391,12 @@ main (int argc, char *argv[])
                                         | SDL_WINDOW_BORDERLESS);
   SDL_Renderer *renderer =
     SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC);
+  SDL_Renderer *output_renderer = NULL;
   code_dream_theme_t *theme = code_dream_theme_create(options->theme,
                                                       options->light,
                                                       basedir);
   if (theme == NULL)
     {
-      code_source_destroy(code_source);
-      SDL_Quit();
-      exit(0);
-    }
-  code_image_set_t *code_image_set =
-    code_image_set_create(basedir, code_source, theme, renderer);
-  if (code_image_set == NULL)
-    {
-      code_dream_theme_destroy(theme);
       code_source_destroy(code_source);
       SDL_Quit();
       exit(0);
@@ -407,6 +414,7 @@ main (int argc, char *argv[])
                                          theme,
                                          options->screen_width,
                                          options->screen_height);
+          output_renderer = code_dream_gif_writer_get_renderer(gif_writer);
         }
       if (ends_with(options->output, ".mov"))
         {
@@ -417,7 +425,22 @@ main (int argc, char *argv[])
                                            theme,
                                            options->screen_width,
                                            options->screen_height);
+          output_renderer = code_dream_video_writer_get_renderer(video_writer);
         }
+    }
+  SDL_Renderer *gif_writer_renderer = NULL;
+  SDL_Renderer *video_writer_renderer = NULL;
+  code_image_set_t *code_image_set =
+    code_image_set_create(basedir, code_source, theme,
+                          renderer,
+                          output_renderer,
+                          NULL);
+  if (code_image_set == NULL)
+    {
+      code_dream_theme_destroy(theme);
+      code_source_destroy(code_source);
+      SDL_Quit();
+      exit(0);
     }
   code_dream_code_display_set_t *displays =
     code_dream_code_display_set_create(code_source,

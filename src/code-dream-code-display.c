@@ -98,9 +98,11 @@ code_dream_code_display_draw_char(code_dream_code_display_t *display,
   c[0] = char_info->c;
   c[1] = '\0';
   code_dream_image_t *image =
-    code_image_set_get_char_image(display->code_image_set,
-                                  char_info->c,
-                                  (code_dream_face_t){color, face.weight});
+    code_image_set_get_char_image_for_renderer(display->code_image_set,
+                                               char_info->c,
+                                               (code_dream_face_t){color,
+                                                                   face.weight},
+                                               renderer);
 
   if (image != NULL)
     {

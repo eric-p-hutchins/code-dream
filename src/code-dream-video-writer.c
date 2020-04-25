@@ -21,19 +21,6 @@ code_dream_video_writer_create(const char *basedir,
                                    24,
                                    SDL_PIXELFORMAT_RGB24);
   priv->renderer = SDL_CreateSoftwareRenderer(priv->surface);
-  priv->code_image_set = code_image_set_create(basedir,
-                                               code_source,
-                                               theme,
-                                               priv->renderer);
-  if (priv->code_image_set == NULL)
-    {
-      code_dream_video_writer_destroy(writer);
-      return NULL;
-    }
-  while (code_image_set_loading(priv->code_image_set))
-    {
-      ;
-    }
   priv->avformat_context = avformat_alloc_context();
   if (priv->avformat_context == NULL)
     {
@@ -142,6 +129,14 @@ code_dream_video_writer_create(const char *basedir,
   return writer;
 }
 
+SDL_Renderer *
+code_dream_video_writer_get_renderer(code_dream_video_writer_t *writer)
+{
+  code_dream_video_writer_priv_t *priv =
+    (code_dream_video_writer_priv_t*)writer->priv;
+  return priv->renderer;
+}
+
 void
 code_dream_video_writer_write_frame(code_dream_video_writer_t *writer,
                                     code_dream_code_display_set_t *displays)
@@ -149,32 +144,7 @@ code_dream_video_writer_write_frame(code_dream_video_writer_t *writer,
   code_dream_video_writer_priv_t *priv =
     (code_dream_video_writer_priv_t*)writer->priv;
 
-  SDL_SetRenderDrawColor(priv->renderer,
-                         priv->code_image_set->theme->background_color.r,
-                         priv->code_image_set->theme->background_color.g,
-                         priv->code_image_set->theme->background_color.b, 255);
-  SDL_RenderClear(priv->renderer);
-
-  // Replace the code image set with the one created for the software
-  // renderer
-  code_image_set_t *old_cis = displays->code_image_set;
-  displays->code_image_set = priv->code_image_set;
-  int i, j;
-  for (i = 0; i < displays->n_displays; ++i)
-    {
-      displays->displays[i]->code_image_set = priv->code_image_set;
-    }
-
-  code_dream_code_display_set_draw(displays, priv->renderer);
-  SDL_RenderPresent(priv->renderer);
-
-  // Put back the original code image set for drawing to the screen
-  displays->code_image_set = old_cis;
-  for (i = 0; i < displays->n_displays; ++i)
-    {
-      displays->displays[i]->code_image_set = old_cis;
-    }
-
+  int i;
   for (i = 0; i < priv->surface->h; ++i)
     {
       memcpy(priv->input_frame->data[0] + i * priv->surface->w * 3,
@@ -266,7 +236,6 @@ code_dream_video_writer_destroy(code_dream_video_writer_t *writer)
     }
   SDL_DestroyRenderer(priv->renderer);
   SDL_FreeSurface(priv->surface);
-  code_image_set_destroy(priv->code_image_set);
   free(priv);
   free(writer);
 }

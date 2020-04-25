@@ -99,6 +99,11 @@ Examples:
 TODO
 ----
 
+* Support giving a list of files/directories (similar to `ls` or `git
+  add`) so I can say `code-dream src/main.c
+  src/code-dream-format-type.h` and get just those 2 files (or specify
+  directories and get whatever is in those directories too
+
 * Make a mode to just generate the output file without showing the
   realtime version on screen
 
@@ -108,11 +113,6 @@ TODO
 * Fix frame rate of realtime video to not always use constant delay
   but only wait the difference between the time it took to draw and
   the frame time
-
-* Don't duplicate the drawing calls, but instead, in the main file,
-  split out a common draw function that uses a passed in renderer and
-  then call that from the main draw and after drawing to screen, draw
-  to `gif_writer` renderers or `video_writer` renderers
 
 * Unify the gif writer and video writer objects into one that is smart
   enough to know what to do for whichever format was selected,
@@ -172,6 +172,11 @@ TODO
 
 * Do something different for different levels of bold specified by
   Emacs face spec: `(semi-bold bold extra-bold ultra-bold)`
+
+* ~~Don't duplicate the drawing calls, but instead, in the main file,
+  split out a common draw function that uses a passed in renderer and
+  then call that from the main draw and after drawing to screen, draw
+  to `gif_writer` renderers or `video_writer` renderers~~
 
 * ~~Make a way to export to .mov directly so that I don't need to screen
   record to actually get the background video~~

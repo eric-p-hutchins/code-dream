@@ -42,7 +42,6 @@ struct code_dream_video_writer_priv_t
 {
   SDL_Renderer *renderer;
   SDL_Surface *surface;
-  code_image_set_t *code_image_set;
   AVDictionary *avformat_dict;
   AVFormatContext *avformat_context;
   AVDictionary *avcodec_dict;
@@ -63,6 +62,9 @@ code_dream_video_writer_create(const char *basedir,
                                code_dream_theme_t *theme,
                                int screen_width,
                                int screen_height);
+
+SDL_Renderer *
+code_dream_video_writer_get_renderer(code_dream_video_writer_t *writer);
 
 void
 code_dream_video_writer_write_frame(code_dream_video_writer_t *writer,

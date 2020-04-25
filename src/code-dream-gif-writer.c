@@ -60,19 +60,6 @@ code_dream_gif_writer_create(const char *basedir,
                                    24,
                                    SDL_PIXELFORMAT_RGB24);
   priv->renderer = SDL_CreateSoftwareRenderer(priv->surface);
-  priv->code_image_set = code_image_set_create(basedir,
-                                               code_source,
-                                               theme,
-                                               priv->renderer);
-  if (priv->code_image_set == NULL)
-    {
-      code_dream_gif_writer_destroy(writer);
-      return NULL;
-    }
-  while (code_image_set_loading(priv->code_image_set))
-    {
-      ;
-    }
 
   int error;
   priv->gif_file = EGifOpenFileName(filename, false, &error);
@@ -179,6 +166,14 @@ code_dream_gif_writer_create(const char *basedir,
   return writer;
 }
 
+SDL_Renderer *
+code_dream_gif_writer_get_renderer(code_dream_gif_writer_t *writer)
+{
+  code_dream_gif_writer_priv_t *priv =
+    (code_dream_gif_writer_priv_t*)writer->priv;
+  return priv->renderer;
+}
+
 int
 code_dream_gif_writer_find_closest_color(ColorMapObject *ColorMap,
                                          int r, int g, int b)
@@ -209,7 +204,6 @@ code_dream_gif_writer_draw_frame(code_dream_gif_writer_t *writer,
 {
   code_dream_gif_writer_priv_t *priv =
     (code_dream_gif_writer_priv_t*)writer->priv;
-  code_image_set_t *code_image_set = priv->code_image_set;
   SDL_Surface *surface = priv->surface;
   SDL_Renderer *renderer = priv->renderer;
 
@@ -264,35 +258,8 @@ code_dream_gif_writer_draw_frame(code_dream_gif_writer_t *writer,
                            3, sub_block);
     }
 
-
-  SDL_SetRenderDrawColor(renderer,
-                         code_image_set->theme->background_color.r,
-                         code_image_set->theme->background_color.g,
-                         code_image_set->theme->background_color.b, 255);
-  SDL_RenderClear(renderer);
-
-  // Replace the code image set with the one created for the software
-  // renderer
-  code_image_set_t *old_cis = displays->code_image_set;
-  displays->code_image_set = code_image_set;
-  int i;
-  for (i = 0; i < displays->n_displays; ++i)
-    {
-      displays->displays[i]->code_image_set = code_image_set;
-    }
-
-  code_dream_code_display_set_draw(displays, renderer);
-  SDL_RenderPresent(renderer);
-
-  // Put back the original code image set for drawing to the screen
-  displays->code_image_set = old_cis;
-  for (i = 0; i < displays->n_displays; ++i)
-    {
-      displays->displays[i]->code_image_set = old_cis;
-    }
-
   Uint8 *pixels = (Uint8*)surface->pixels;
-  int j;
+  int i, j;
   for (i = 0; i < surface->h; ++i)
     {
       for (j = 0; j < surface->w; ++j)
@@ -350,7 +317,6 @@ code_dream_gif_writer_destroy(code_dream_gif_writer_t *writer)
     }
   SDL_DestroyRenderer(priv->renderer);
   SDL_FreeSurface(priv->surface);
-  code_image_set_destroy(priv->code_image_set);
   free(priv);
   free(writer);
 }
