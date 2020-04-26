@@ -149,11 +149,12 @@ code_image_set_create_images_for_renderer(code_image_set_t *code_image_set,
     }
   
   SDL_Surface *char_surface;
+  int gradient_resolution = 8;
   int i;
-  for (i = 0; i <= 15; ++i)
+  for (i = 0; i <= (gradient_resolution - 1); ++i)
     {
       SDL_Color color = face.color;
-      double alpha = i / 15.0;
+      double alpha = i / (double)(gradient_resolution - 1);
       color.r =
         color.r * alpha + theme->background_color.r * (1.0 - alpha);
       if (color.r < 0) color.r = 0;

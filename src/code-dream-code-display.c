@@ -107,10 +107,17 @@ code_dream_code_display_draw_char(code_dream_code_display_t *display,
   double dist_range = display->max_dist - display->min_dist;
   double how_close = dist_range - (display->dist - display->min_dist);
   double alpha = 0;
-  int alpha_level = how_close * 16 / dist_range;
-  if (alpha_level < 0) alpha_level = 0;
-  if (alpha_level > 15) alpha_level = 15;
-  alpha = alpha_level / 15.0;
+  int gradient_resolution = 8;
+  int alpha_level = how_close * gradient_resolution / dist_range;
+  if (alpha_level < 0)
+    {
+      alpha_level = 0;
+    }
+  if (alpha_level > gradient_resolution - 1)
+    {
+      alpha_level = gradient_resolution - 1;
+    }
+  alpha = alpha_level / (double)(gradient_resolution - 1);
   color.r =
     color.r * alpha + theme->background_color.r * (1.0 - alpha);
   if (color.r < 0) color.r = 0;
