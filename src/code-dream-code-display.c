@@ -107,7 +107,10 @@ code_dream_code_display_draw_char(code_dream_code_display_t *display,
   double dist_range = display->max_dist - display->min_dist;
   double how_close = dist_range - (display->dist - display->min_dist);
   double alpha = 0;
-  int gradient_resolution = 8;
+
+  // This is to limit the number of possible colors so that it can
+  // effectively keep a cache of textures for fast display
+  int gradient_resolution = 128;
   int alpha_level = how_close * gradient_resolution / dist_range;
   if (alpha_level < 0)
     {
@@ -118,6 +121,17 @@ code_dream_code_display_draw_char(code_dream_code_display_t *display,
       alpha_level = gradient_resolution - 1;
     }
   alpha = alpha_level / (double)(gradient_resolution - 1);
+
+
+
+
+  // Use this instead for the real alpha level at all times
+  //
+  // alpha = how_close / dist_range;
+
+
+
+
   color.r =
     color.r * alpha + theme->background_color.r * (1.0 - alpha);
   if (color.r < 0) color.r = 0;
@@ -133,13 +147,13 @@ code_dream_code_display_draw_char(code_dream_code_display_t *display,
   char c[2];
   c[0] = char_info->c;
   c[1] = '\0';
+
   code_dream_image_t *image =
     code_image_set_get_char_image_for_renderer(display->code_image_set,
                                                char_info->c,
                                                (code_dream_face_t){color,
                                                                    face.weight},
                                                renderer);
-
   if (image != NULL)
     {
       SDL_RenderCopyF(renderer, image->image, NULL, &rect);

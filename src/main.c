@@ -488,7 +488,10 @@ main (int argc, char *argv[])
           // too long because of OS scheduling.
           //
           // Then just tight loop for the last 2 ms (or less)
-          SDL_Delay(time_left - 2);
+          if (time_left - 2 > 0)
+            {
+              SDL_Delay(time_left - 2);
+            }
           while (!SDL_TICKS_PASSED(SDL_GetTicks(), next_frame_time))
             {
               ; // tight loop

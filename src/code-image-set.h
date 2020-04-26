@@ -37,7 +37,7 @@ struct code_image_set_t
   int n_renderers;
   SDL_Renderer **renderers;
   code_dream_image_t ***images;
-  int *n_images;
+  long *n_images;
   TTF_Font *font;
   int font_width;
   int font_height;

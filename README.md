@@ -99,6 +99,14 @@ Examples:
 TODO
 ----
 
+* Option for parsing a diff and using all the files mentioned in the
+  diff
+
+* Add option for total time (in seconds, milliseconds, etc.) so that
+  for creating output you can run 1 command and leave it alone to get
+  a 5-minute clip or 10-minute clip, without having to keep track and
+  quit manually
+
 * Support giving a list of files/directories (similar to `ls` or `git
   add`) so I can say `code-dream src/main.c
   src/code-dream-format-type.h` and get just those 2 files (or specify
@@ -147,6 +155,8 @@ TODO
           map for each frame)
 
 * Allow using arbitrary font choices, possibly installed on the system
+    * This will likely require using freetype or something else
+      instead of SDL_ttf
 
 * Optimize loading of code
     * Possibly make `highlight.el` run on all found code files at once
