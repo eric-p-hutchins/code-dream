@@ -1,4 +1,4 @@
-AC_INIT([code-dream],[0.1.10],[eric.p.hutchins@gmail.com])
+AC_INIT([code-dream],[0.1.11],[eric.p.hutchins@gmail.com])
 AC_CONFIG_SRCDIR([src/code-dream-options.h])
 AC_CONFIG_HEADERS([src/config.h])
 
