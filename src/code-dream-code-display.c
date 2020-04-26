@@ -27,11 +27,38 @@ code_dream_code_display_create(code_dream_char_info_set_t *char_info_set,
     (code_dream_code_display_t *)malloc(sizeof(code_dream_code_display_t));
   display->char_info_set = char_info_set;
   display->code_image_set = code_image_set;
-  display->line_to_zoom_under = rand() % char_info_set->n_lines;
+
+  // always zoom between lines, minimum is between lines 1 and 2,
+  // maximum is between lines n-1 and n (where n is the number of
+  // lines)
+  display->line_to_zoom_above = 1 + rand() % (char_info_set->n_lines - 1);
+
+  int above_width = 0;
+  int below_width = 0;
+  int i;
+  for (i = 0; i < char_info_set->n_infos; ++i)
+    {
+      if (char_info_set->infos[i]->row == display->line_to_zoom_above + 1)
+        {
+          if (char_info_set->infos[i]->col + 1 > below_width)
+            {
+              below_width = char_info_set->infos[i]->col + 1;
+            }
+        }
+      if (char_info_set->infos[i]->row == display->line_to_zoom_above)
+        {
+          if (char_info_set->infos[i]->col + 1 > above_width)
+            {
+              above_width = char_info_set->infos[i]->col + 1;
+            }
+        }
+    }
+  display->col_to_zoom_before = (above_width + below_width) / 2.0;
   display->total_time = 300;
   display->min_dist = code_image_set->font_width / 1000.0;
   display->max_dist = code_image_set->font_width / 5.0;
-  display->speed = (display->max_dist - display->min_dist) / (double)display->total_time;
+  display->speed = (display->max_dist - display->min_dist)
+    / (double)display->total_time;
   display->dist = display->max_dist;
   display->screen_width = screen_width;
   display->screen_height = screen_height;
@@ -52,8 +79,8 @@ code_dream_code_display_draw_char(code_dream_code_display_t *display,
 {
   int x = char_info->col * code_image_set->font_width;
   int y = (char_info->row - 1) * code_image_set->font_height;
-  int zoom_y = code_image_set->font_height * display->line_to_zoom_under;
-  double code_width = code_image_set->font_width * 80;
+  int zoom_y = code_image_set->font_height * display->line_to_zoom_above;
+  double code_width = code_image_set->font_width * display->col_to_zoom_before;
   SDL_FRect rect;
   rect.x = display->screen_width / 2 + (-code_width / 2 + x) / display->dist
     * display->screen_height / 400.0;
@@ -61,8 +88,10 @@ code_dream_code_display_draw_char(code_dream_code_display_t *display,
     * display->screen_height / 400.0;
   rect.x += (rand() % 3 - 1) * display->screen_height / 200.0 / display->dist;
   rect.y += (rand() % 3 - 1) * display->screen_height / 200.0 / display->dist;
-  rect.w = code_image_set->font_width / display->dist * display->screen_height / 400.0;
-  rect.h = code_image_set->font_height / display->dist * display->screen_height / 400.0;
+  rect.w = code_image_set->font_width / display->dist * display->screen_height
+    / 400.0;
+  rect.h = code_image_set->font_height / display->dist * display->screen_height
+    / 400.0;
   if (rect.x >= display->screen_width
       || rect.y >= display->screen_height
       || (rect.x + rect.w) <= 0

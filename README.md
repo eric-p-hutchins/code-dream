@@ -154,9 +154,6 @@ TODO
 
 * Configuration options for zoom level, maximum distance, speed, etc.
 
-* Make it not zoom to empty space so much (know how big the line is
-  and zoom to the middle of the line)
-
 * Don't move randomly
     * Random is too random and can do the same spot too
       often. Instead, jump through the source in some regular pattern
@@ -168,6 +165,9 @@ TODO
 
 * Do something different for different levels of bold specified by
   Emacs face spec: `(semi-bold bold extra-bold ultra-bold)`
+
+* ~~Make it not zoom to empty space so much (know how big the line is
+  and zoom to the middle of the line)~~
 
 * ~~Fix frame rate of realtime video to not always use constant delay
   but only wait the difference between the time it took to draw and

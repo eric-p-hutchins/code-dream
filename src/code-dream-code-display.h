@@ -29,7 +29,8 @@ struct code_dream_code_display_t
 {
   code_dream_char_info_set_t *char_info_set;
   code_image_set_t *code_image_set;
-  int line_to_zoom_under;
+  int line_to_zoom_above;
+  double col_to_zoom_before;
   int total_time;
   double min_dist;
   double max_dist;
