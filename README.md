@@ -99,6 +99,11 @@ Examples:
 TODO
 ----
 
+* Properly handle tab width and non-ascii characters. Currently, it
+  assumes iso-8859-1 encoding and if you give it utf-8 it will do what
+  it usually does on the web, etc. which is give you garbage
+  characters
+
 * Option for parsing a diff and using all the files mentioned in the
   diff
 

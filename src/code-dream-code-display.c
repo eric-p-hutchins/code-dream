@@ -86,8 +86,8 @@ code_dream_code_display_draw_char(code_dream_code_display_t *display,
     * display->screen_height / 400.0;
   rect.y = display->screen_height / 2 + (-zoom_y + y) / display->dist
     * display->screen_height / 400.0;
-  rect.x += (rand() % 3 - 1) * display->screen_height / 200.0 / display->dist;
-  rect.y += (rand() % 3 - 1) * display->screen_height / 200.0 / display->dist;
+  rect.x += (rand() % 3 - 1) * display->screen_height / 300.0 / display->dist;
+  rect.y += (rand() % 3 - 1) * display->screen_height / 300.0 / display->dist;
   rect.w = code_image_set->font_width / display->dist * display->screen_height
     / 400.0;
   rect.h = code_image_set->font_height / display->dist * display->screen_height
