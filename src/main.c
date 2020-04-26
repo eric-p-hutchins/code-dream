@@ -456,8 +456,18 @@ main (int argc, char *argv[])
   int t = 0;
 
   bool running = true;
+
+  // Handle events initially out of the loop to let windows,
+  // etc. initialize
+  handle_events(&running);
+
+  Uint32 start_time = SDL_GetTicks();
+  Uint32 current_frame_time;
+  Uint32 next_frame_time;
   while (running)
     {
+      current_frame_time = SDL_GetTicks();
+      next_frame_time = current_frame_time + 20;
       handle_events(&running);
       update(code_source,
              code_image_set,
@@ -471,7 +481,19 @@ main (int argc, char *argv[])
            window,
            gif_writer,
            video_writer);
-      SDL_Delay(20);
+      Sint32 time_left = next_frame_time - SDL_GetTicks();
+      if (time_left > 0)
+        {
+          // Wait 2 ms less than the time left because it might sleep
+          // too long because of OS scheduling.
+          //
+          // Then just tight loop for the last 2 ms (or less)
+          SDL_Delay(time_left - 2);
+          while (!SDL_TICKS_PASSED(SDL_GetTicks(), next_frame_time))
+            {
+              ; // tight loop
+            }
+        }
       ++t;
     }
 
