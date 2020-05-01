@@ -39,6 +39,7 @@ struct code_image_set_t
   code_dream_image_t ***images;
   long *n_images;
   TTF_Font *font;
+  TTF_Font *cjk_font;
   int font_width;
   int font_height;
   bool loaded;
@@ -59,7 +60,7 @@ code_image_set_load(void *data);
 
 code_dream_image_t *
 code_image_set_get_char_image_for_renderer(code_image_set_t *set,
-                                           char c,
+                                           char *c,
                                            code_dream_face_t face,
                                            SDL_Renderer *renderer);
 

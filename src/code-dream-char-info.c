@@ -18,14 +18,14 @@
 #include "code-dream-char-info.h"
 
 code_dream_char_info_t *
-code_dream_char_info_create(char c,
+code_dream_char_info_create(const char *c,
                             code_dream_format_type_t type,
                             int row,
                             int col)
 {
   code_dream_char_info_t *char_info =
     (code_dream_char_info_t*)malloc(sizeof(code_dream_char_info_t));
-  char_info->c = c;
+  char_info->c = strdup(c);
   char_info->type = type;
   char_info->row = row;
   char_info->col = col;

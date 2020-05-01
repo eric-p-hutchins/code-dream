@@ -15,6 +15,7 @@ Dependencies
   - SDL2_ttf
   - libgif
   - ffmpeg
+  - libunistring
 
 Build
 -----

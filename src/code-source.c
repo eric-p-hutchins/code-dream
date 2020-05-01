@@ -20,6 +20,7 @@
 #include <string.h>
 #include <dirent.h>
 
+#include "unistr.h"
 #include "SDL2/SDL_thread.h"
 
 #include "config.h"
@@ -159,6 +160,11 @@ code_source_get_char_info_set(code_source_t *code_source,
   while (fgets(line, 1024, output) != NULL)
     {
       char c = line[0];
+      ucs4_t puc;
+      char *next = u8_next(&puc, line);
+      char *unicode_char = (char*)malloc(sizeof(char) * (next - line + 1));
+      unicode_char[next - line] = '\0';
+      strncpy(unicode_char, line, next - line);
       if (c == '\n')
         {
           // Read the corresponding 'nil'
@@ -167,17 +173,19 @@ code_source_get_char_info_set(code_source_t *code_source,
           col = 0;
           continue;
         }
-      if (c != ' ')
+      if (strcmp(unicode_char, " ") != 0)
         {
-          char *emacs_type = strdup(line + 2);
+          next = u8_next(&puc, next);
+          char *emacs_type = strdup(next);
           emacs_type[strlen(emacs_type) - 1] = '\0';
           code_dream_format_type_t type =
             code_source_emacs_type_to_code_dream_type(emacs_type);
           free(emacs_type);
           code_dream_char_info_t *char_info =
-            code_dream_char_info_create(c, type, row, col);
+            code_dream_char_info_create(unicode_char, type, row, col);
           code_dream_char_info_set_add_char(set, char_info);
         }
+      free(unicode_char);
       ++col;
     }
   set->n_lines = row - 1;

@@ -36,4 +36,5 @@ code_dream_CFLAGS +=  -DDATADIR=\"$(code_dream_datadir)\"
 dist_code_dream_data_DATA = \
  ../highlight.el \
  ../theme.el \
- ../DejaVuSansMono.ttf
+ ../DroidSansFallbackFull.ttf \
+ ../DroidSansMono.ttf

@@ -18,7 +18,7 @@
 #include "code-dream-image.h"
 
 code_dream_image_t *
-code_dream_image_create(char c,
+code_dream_image_create(const char *c,
                         code_dream_face_t face,
                         SDL_Texture *image,
                         int x,
@@ -28,7 +28,7 @@ code_dream_image_create(char c,
 {
   code_dream_image_t *code_dream_image =
     (code_dream_image_t*)malloc(sizeof(code_dream_image_t));
-  code_dream_image->c = c;
+  code_dream_image->c = strdup(c);
   code_dream_image->face = face;
   code_dream_image->image = image;
   code_dream_image->x = x;

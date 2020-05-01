@@ -1,4 +1,4 @@
-AC_INIT([code-dream],[0.1.12],[eric.p.hutchins@gmail.com])
+AC_INIT([code-dream],[0.1.13],[eric.p.hutchins@gmail.com])
 AC_CONFIG_SRCDIR([src/code-dream-options.h])
 AC_CONFIG_HEADERS([src/config.h])
 
@@ -17,6 +17,8 @@ AC_CHECK_LIB([avcodec],[avcodec_alloc_context3],[LIBS="$LIBS -lavcodec"])
 AC_CHECK_LIB([swscale],[sws_getContext],[LIBS="$LIBS -lswscale"])
 
 AC_CHECK_LIB([gif],[EGifSpew],[LIBS="$LIBS -lgif"])
+
+AC_CHECK_LIB([unistring],[u8_next],[LIBS="$LIBS -lunistring"])
 
 AC_PATH_PROG([EMACS], [emacs])
 AC_ARG_VAR([EMACS],[location of emacs])

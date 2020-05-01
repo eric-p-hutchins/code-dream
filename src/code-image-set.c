@@ -15,6 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Code Dream.  If not, see <https://www.gnu.org/licenses/>.
 
+#include "unistr.h"
 #include "code-image-set.h"
 
 code_image_set_t *
@@ -49,34 +50,34 @@ code_image_set_create(const char *basedir,
   va_end(more_renderers);
 
   code_image_set->font_path = (char*)malloc(strlen(basedir)
-                                              + strlen("/DejaVuSansMono.ttf")
+                                              + strlen("/DroidSansMono.ttf")
                                               + 1);
   strcpy(code_image_set->font_path, basedir);
-  strcat(code_image_set->font_path, "/DejaVuSansMono.ttf");
+  strcat(code_image_set->font_path, "/DroidSansMono.ttf");
   FILE *file = fopen(code_image_set->font_path, "r");
   if (file == NULL)
     {
       free(code_image_set->font_path);
       code_image_set->font_path = (char*)malloc(strlen(basedir)
-                                                + strlen("/../DejaVuSansMono.ttf")
+                                                + strlen("/../DroidSansMono.ttf")
                                                 + 1);
       strcpy(code_image_set->font_path, basedir);
-      strcat(code_image_set->font_path, "/../DejaVuSansMono.ttf");
+      strcat(code_image_set->font_path, "/../DroidSansMono.ttf");
       file = fopen(code_image_set->font_path, "r");
     }
   if (file == NULL)
     {
       free(code_image_set->font_path);
       code_image_set->font_path = (char*)malloc(strlen(DATADIR)
-                                                + strlen("/DejaVuSansMono.ttf")
+                                                + strlen("/DroidSansMono.ttf")
                                                 + 1);
       strcpy(code_image_set->font_path, DATADIR);
-      strcat(code_image_set->font_path, "/DejaVuSansMono.ttf");
+      strcat(code_image_set->font_path, "/DroidSansMono.ttf");
       file = fopen(code_image_set->font_path, "r");
     }
   if (file == NULL)
     {
-      fprintf(stderr, "%s\n", "Error: can't find DejaVuSansMono.ttf");
+      fprintf(stderr, "%s\n", "Error: can't find DroidSansMono.ttf");
       code_image_set_destroy(code_image_set);
       return NULL;
     }
@@ -89,6 +90,53 @@ code_image_set_create(const char *basedir,
       return NULL;
     }
   TTF_SetFontHinting(code_image_set->font, TTF_HINTING_NONE);
+
+
+  char *cjk_font_path = (char*)malloc(strlen(basedir)
+                                      + strlen("/DroidSansFallbackFull.ttf")
+                                      + 1);
+  strcpy(cjk_font_path, basedir);
+  strcat(cjk_font_path, "/DroidSansFallbackFull.ttf");
+  file = fopen(cjk_font_path, "r");
+  if (file == NULL)
+    {
+      free(cjk_font_path);
+      cjk_font_path = (char*)malloc(strlen(basedir)
+                                                + strlen("/../DroidSansFallbackFull.ttf")
+                                                + 1);
+      strcpy(cjk_font_path, basedir);
+      strcat(cjk_font_path, "/../DroidSansFallbackFull.ttf");
+      file = fopen(cjk_font_path, "r");
+    }
+  if (file == NULL)
+    {
+      free(cjk_font_path);
+      cjk_font_path = (char*)malloc(strlen(DATADIR)
+                                                + strlen("/DroidSansFallbackFull.ttf")
+                                                + 1);
+      strcpy(cjk_font_path, DATADIR);
+      strcat(cjk_font_path, "/DroidSansFallbackFull.ttf");
+      file = fopen(cjk_font_path, "r");
+    }
+  if (file == NULL)
+    {
+      fprintf(stderr, "%s\n", "Error: can't find DroidSansFallbackFull.ttf");
+      code_image_set_destroy(code_image_set);
+      return NULL;
+    }
+  fclose(file);
+  code_image_set->cjk_font = TTF_OpenFont(cjk_font_path, 64);
+  if (code_image_set->cjk_font == NULL)
+    {
+      fprintf (stderr, "Couldn't create font: %s\n", TTF_GetError());
+      free(code_image_set);
+      return NULL;
+    }
+  TTF_SetFontHinting(code_image_set->cjk_font, TTF_HINTING_NONE);
+
+
+
+
   if (TTF_SizeUTF8(code_image_set->font,
                    "A",
                    &(code_image_set->font_width),
@@ -128,15 +176,12 @@ code_image_set_loading(code_image_set_t *code_image_set)
 
 void
 code_image_set_create_image_for_renderer(code_image_set_t *code_image_set,
-                                         char c,
+                                         char *c,
                                          code_dream_face_t face,
                                          int row,
                                          int col,
                                          int renderer_index)
 {
-  char c_str[2];
-  c_str[0] = c;
-  c_str[1] = '\0';
   if (face.weight == CD_BOLD)
     {
       TTF_SetFontStyle(code_image_set->font, TTF_STYLE_BOLD);
@@ -145,9 +190,21 @@ code_image_set_create_image_for_renderer(code_image_set_t *code_image_set,
     {
       TTF_SetFontStyle(code_image_set->font, TTF_STYLE_NORMAL);
     }
-  SDL_Surface *char_surface = TTF_RenderText_Blended(code_image_set->font,
-                                                     c_str,
-                                                     face.color);
+  ucs4_t puc;
+  u8_strmbtouc(&puc, c);
+  SDL_Surface *char_surface = NULL;
+  if (puc < 256)
+    {
+      char_surface = TTF_RenderUTF8_Blended(code_image_set->font,
+                                            c,
+                                            face.color);
+    }
+  else
+    {
+      char_surface = TTF_RenderUTF8_Blended(code_image_set->cjk_font,
+                                            c,
+                                            face.color);
+    }
   if (char_surface == NULL)
     {
       fprintf(stderr, "error: %s\n", TTF_GetError());
@@ -194,7 +251,7 @@ code_image_set_get_renderer_index(code_image_set_t *set, SDL_Renderer *renderer)
 
 code_dream_image_t *
 code_image_set_get_char_image_for_renderer(code_image_set_t *set,
-                                           char c,
+                                           char *c,
                                            code_dream_face_t face,
                                            SDL_Renderer *renderer)
 {
@@ -207,7 +264,7 @@ code_image_set_get_char_image_for_renderer(code_image_set_t *set,
   long i;
   for (i = 0; i < set->n_images[renderer_index]; ++i)
     {
-      if (set->images[renderer_index][i]->c == c
+      if (strcmp(set->images[renderer_index][i]->c, c) == 0
           && set->images[renderer_index][i]->face.color.r == face.color.r
           && set->images[renderer_index][i]->face.color.g == face.color.g
           && set->images[renderer_index][i]->face.color.b == face.color.b

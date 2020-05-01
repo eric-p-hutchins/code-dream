@@ -26,13 +26,13 @@ typedef struct code_dream_char_info_t code_dream_char_info_t;
 
 struct code_dream_char_info_t
 {
-  char c;
+  char *c;
   code_dream_format_type_t type;
   int row;
   int col;
 };
 
-code_dream_char_info_t *code_dream_char_info_create(char c,
+code_dream_char_info_t *code_dream_char_info_create(const char *c,
                                                     code_dream_format_type_t type,
                                                     int row,
                                                     int col);
