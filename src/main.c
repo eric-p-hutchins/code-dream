@@ -30,6 +30,7 @@
 #include "code-image-set.h"
 #include "code-source.h"
 #include "config.h"
+#include "filters.h"
 
 void
 handle_events(bool *running)
@@ -442,11 +443,21 @@ main (int argc, char *argv[])
       SDL_Quit();
       exit(0);
     }
+
+  code_dream_filter_list_t *filter_list = code_dream_filter_list_create();
+  code_dream_filter_t *jiggle_filter = code_dream_filter_create(jiggle);
+  code_dream_filter_t *spasm_filter = code_dream_filter_create(spasm);
+  code_dream_filter_t *flicker_filter = code_dream_filter_create(flicker);
+  code_dream_filter_list_add_filter(filter_list, jiggle_filter);
+  code_dream_filter_list_add_filter(filter_list, spasm_filter);
+  code_dream_filter_list_add_filter(filter_list, flicker_filter);
+
   code_dream_code_display_set_t *displays =
     code_dream_code_display_set_create(code_source,
                                        code_image_set,
                                        options->screen_width,
-                                       options->screen_height);
+                                       options->screen_height,
+                                       filter_list);
 
   code_dream_loading_screen_t *loading_screen =
     code_dream_loading_screen_create(renderer,

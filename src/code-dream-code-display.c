@@ -21,12 +21,17 @@ code_dream_code_display_t *
 code_dream_code_display_create(code_dream_char_info_set_t *char_info_set,
                                code_image_set_t *code_image_set,
                                int screen_width,
-                               int screen_height)
+                               int screen_height,
+                               code_dream_filter_list_t *filter_list)
 {
   code_dream_code_display_t *display =
     (code_dream_code_display_t *)malloc(sizeof(code_dream_code_display_t));
   display->char_info_set = char_info_set;
   display->code_image_set = code_image_set;
+  display->filter_list = filter_list;
+  display->state = (uint8_t*)malloc(sizeof(uint8_t) * char_info_set->n_infos
+                                    * filter_list->n_filters);
+  memset(display->state, 0, char_info_set->n_infos);
 
   // always zoom between lines, minimum is between lines 1 and 2,
   // maximum is between lines n-1 and n (where n is the number of
@@ -54,11 +59,10 @@ code_dream_code_display_create(code_dream_char_info_set_t *char_info_set,
         }
     }
   display->col_to_zoom_before = (above_width + below_width) / 2.0;
-  display->total_time = 300;
-  display->min_dist = code_image_set->font_width / 1000.0;
-  display->max_dist = code_image_set->font_width / 5.0;
-  display->speed = (display->max_dist - display->min_dist)
-    / (double)display->total_time;
+  display->min_dist = 0.1;
+  display->max_dist = 32;
+  /* display->speed = 0.1; */
+  display->speed = 0.05;
   display->dist = display->max_dist;
   display->screen_width = screen_width;
   display->screen_height = screen_height;
@@ -75,23 +79,22 @@ void
 code_dream_code_display_draw_char(code_dream_code_display_t *display,
                                   code_dream_char_info_t *char_info,
                                   code_image_set_t *code_image_set,
-                                  SDL_Renderer *renderer)
+                                  SDL_Renderer *renderer,
+                                  uint8_t *state)
 {
-  int x = char_info->col * code_image_set->font_width;
-  int y = (char_info->row - 1) * code_image_set->font_height;
-  int zoom_y = code_image_set->font_height * display->line_to_zoom_above;
-  double code_width = code_image_set->font_width * display->col_to_zoom_before;
+  double y = char_info->row - 1;
+  double ratio = (double)code_image_set->font_width
+    / code_image_set->font_height;
+  double x = char_info->col * ratio;
+  double zoom_y = display->line_to_zoom_above;
+  double code_width = display->col_to_zoom_before * ratio;
   SDL_FRect rect;
   rect.x = display->screen_width / 2 + (-code_width / 2 + x) / display->dist
-    * display->screen_height / 400.0;
+    * display->screen_height;
   rect.y = display->screen_height / 2 + (-zoom_y + y) / display->dist
-    * display->screen_height / 400.0;
-  rect.x += (rand() % 3 - 1) * display->screen_height / 300.0 / display->dist;
-  rect.y += (rand() % 3 - 1) * display->screen_height / 300.0 / display->dist;
-  rect.w = code_image_set->font_width / display->dist * display->screen_height
-    / 400.0;
-  rect.h = code_image_set->font_height / display->dist * display->screen_height
-    / 400.0;
+    * display->screen_height;
+  rect.w = ratio / display->dist * display->screen_height;
+  rect.h = 1.0 / display->dist * display->screen_height;
   if (rect.x >= display->screen_width
       || rect.y >= display->screen_height
       || (rect.x + rect.w) <= 0
@@ -122,7 +125,9 @@ code_dream_code_display_draw_char(code_dream_code_display_t *display,
     }
   alpha = alpha_level / (double)(gradient_resolution - 1);
 
-
+  code_dream_filter_list_apply(display->filter_list,
+                               &rect,
+                               state);
 
 
   // Use this instead for the real alpha level at all times
@@ -168,12 +173,15 @@ code_dream_code_display_draw(code_dream_code_display_t *display,
       code_dream_code_display_draw_char(display,
                                         char_info,
                                         display->code_image_set,
-                                        renderer);
+                                        renderer,
+                                        display->state +
+                                        i * display->filter_list->n_filters);
     }
 }
 
 void
 code_dream_code_display_destroy(code_dream_code_display_t *display)
 {
+  free(display->state);
   free(display);
 }

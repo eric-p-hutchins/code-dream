@@ -173,7 +173,7 @@ code_source_get_char_info_set(code_source_t *code_source,
           col = 0;
           continue;
         }
-      if (strcmp(unicode_char, " ") != 0)
+      if (strcmp(unicode_char, " ") != 0 && strcmp(unicode_char, "\t") != 0)
         {
           next = u8_next(&puc, next);
           char *emacs_type = strdup(next);

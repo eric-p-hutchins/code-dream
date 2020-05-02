@@ -21,7 +21,8 @@ code_dream_code_display_set_t *
 code_dream_code_display_set_create(code_source_t *code_source,
                                    code_image_set_t *code_image_set,
                                    int screen_width,
-                                   int screen_height)
+                                   int screen_height,
+                                   code_dream_filter_list_t *filter_list)
 {
   code_dream_code_display_set_t *set =
     (code_dream_code_display_set_t *)malloc(sizeof(code_dream_code_display_set_t));
@@ -31,6 +32,7 @@ code_dream_code_display_set_create(code_source_t *code_source,
   set->screen_height = screen_height;
   set->code_source = code_source;
   set->code_image_set = code_image_set;
+  set->filter_list = filter_list;
   return set;
 }
 
@@ -126,7 +128,8 @@ code_dream_code_display_set_add_display(code_dream_code_display_set_t *set)
     code_dream_code_display_create(char_info_set,
                                    set->code_image_set,
                                    set->screen_width,
-                                   set->screen_height);
+                                   set->screen_height,
+                                   set->filter_list);
   ++set->n_displays;
   set->displays =
     (code_dream_code_display_t**)realloc(set->displays,

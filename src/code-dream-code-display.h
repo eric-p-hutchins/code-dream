@@ -22,6 +22,7 @@
 
 #include "code-dream-char-info-set.h"
 #include "code-image-set.h"
+#include "code-dream-filter-list.h"
 
 typedef struct code_dream_code_display_t code_dream_code_display_t;
 
@@ -29,6 +30,8 @@ struct code_dream_code_display_t
 {
   code_dream_char_info_set_t *char_info_set;
   code_image_set_t *code_image_set;
+  code_dream_filter_list_t *filter_list;
+  uint8_t *state;
   int line_to_zoom_above;
   double col_to_zoom_before;
   int total_time;
@@ -44,7 +47,8 @@ code_dream_code_display_t *
 code_dream_code_display_create(code_dream_char_info_set_t *char_info_set,
                                code_image_set_t *code_image_set,
                                int screen_width,
-                               int screen_height);
+                               int screen_height,
+                               code_dream_filter_list_t *filter_list);
 
 void
 code_dream_code_display_update(code_dream_code_display_t *display);

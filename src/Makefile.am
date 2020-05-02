@@ -9,6 +9,10 @@ code_dream_SOURCES = \
  code-dream-code-display-set.c \
  code-dream-code-display-set.h \
  code-dream-face.h \
+ code-dream-filter.c \
+ code-dream-filter.h \
+ code-dream-filter-list.c \
+ code-dream-filter-list.h \
  code-dream-format-type.h \
  code-dream-gif-writer.c \
  code-dream-gif-writer.h \
@@ -25,6 +29,13 @@ code_dream_SOURCES = \
  code-image-set.h \
  code-source.c \
  code-source.h \
+ filter-flicker.c \
+ filter-flicker.h \
+ filter-spasm.c \
+ filter-spasm.h \
+ filter-jiggle.c \
+ filter-jiggle.h \
+ filters.h \
  main.c
 
 code_dream_CFLAGS = $(SDL_CFLAGS)
