@@ -61,8 +61,7 @@ code_dream_code_display_create(code_dream_char_info_set_t *char_info_set,
   display->col_to_zoom_before = (above_width + below_width) / 2.0;
   display->min_dist = 0.1;
   display->max_dist = 32;
-  /* display->speed = 0.1; */
-  display->speed = 0.05;
+  display->speed = 0.025;
   display->dist = display->max_dist;
   display->screen_width = screen_width;
   display->screen_height = screen_height;
