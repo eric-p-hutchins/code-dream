@@ -100,10 +100,16 @@ Examples:
 TODO
 ----
 
-* Properly handle tab width and non-ascii characters. Currently, it
-  assumes iso-8859-1 encoding and if you give it utf-8 it will do what
-  it usually does on the web, etc. which is give you garbage
-  characters
+* Options for setting the original font size that is rendered (which
+  is what then gets scaled to the size of the character based on the
+  distance)
+
+* Options for specifying the filters used and various properties of
+  the filters like frequency of characters selected to use the filter,
+  frequency of doing the effect for a selected character, how big of
+  motion (for jiggle or spasm, etc.)
+
+* Option to include/exclude filepath patterns
 
 * Option for parsing a diff and using all the files mentioned in the
   diff
@@ -182,6 +188,11 @@ TODO
 * Do something different for different levels of bold specified by
   Emacs face spec: `(semi-bold bold extra-bold ultra-bold)`
 
+* ~~Properly handle tab width and non-ascii characters. Currently, it
+  assumes iso-8859-1 encoding and if you give it utf-8 it will do what
+  it usually does on the web, etc. which is give you garbage
+  characters~~
+
 * ~~Make it not zoom to empty space so much (know how big the line is
   and zoom to the middle of the line)~~
 
@@ -239,7 +250,7 @@ TODO
 
 * ~~Ability to use multiple files and possibly specify directories to use~~
 
-* More interesting effects than the character jiggling
+* ~~More interesting effects than the character jiggling~~
 
     * ~~The next piece of code in the distance of the current one,
       blurred as if coming into focus as we zoom past the current one~~
