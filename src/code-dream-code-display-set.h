@@ -22,6 +22,7 @@
 
 #include "code-dream-code-display.h"
 #include "code-dream-filter-list.h"
+#include "code-dream-smoke-list.h"
 #include "code-image-set.h"
 #include "code-source.h"
 
@@ -36,6 +37,7 @@ struct code_dream_code_display_set_t
   code_dream_filter_list_t *filter_list;
   int screen_width;
   int screen_height;
+  code_dream_smoke_list_t *smoke_list;
 };
 
 code_dream_code_display_set_t *

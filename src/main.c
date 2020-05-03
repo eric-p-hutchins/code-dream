@@ -475,9 +475,22 @@ main (int argc, char *argv[])
   Uint32 start_time = SDL_GetTicks();
   Uint32 current_frame_time;
   Uint32 next_frame_time;
+  int stats_frame = t;
+  Uint32 stats_frame_time = start_time;
+
+  bool output_stats = false;
+
+  double fps = 0;
   while (running)
     {
       current_frame_time = SDL_GetTicks();
+      if (output_stats && t - stats_frame == 50)
+        {
+          printf("fps: %.1lf\n",
+                 50000.0 / (current_frame_time - stats_frame_time));
+          stats_frame = t;
+          stats_frame_time = current_frame_time;
+        }
       next_frame_time = current_frame_time + 20;
       handle_events(&running);
       update(code_source,

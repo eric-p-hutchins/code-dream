@@ -21,6 +21,10 @@ code_dream_SOURCES = \
  code-dream-loading-screen.c \
  code-dream-loading-screen.h \
  code-dream-options.h \
+ code-dream-smoke.c \
+ code-dream-smoke.h \
+ code-dream-smoke-list.c \
+ code-dream-smoke-list.h \
  code-dream-theme.c \
  code-dream-theme.h \
  code-dream-video-writer.c \

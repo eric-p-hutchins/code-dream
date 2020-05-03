@@ -100,6 +100,12 @@ Examples:
 TODO
 ----
 
+* Configuration options for the smoke
+
+* Option to enable/disable the smoke
+
+* Option to enable fps output on screen or in console
+
 * Options for setting the original font size that is rendered (which
   is what then gets scaled to the size of the character based on the
   distance)

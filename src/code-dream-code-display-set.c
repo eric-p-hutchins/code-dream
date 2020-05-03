@@ -33,6 +33,10 @@ code_dream_code_display_set_create(code_source_t *code_source,
   set->code_source = code_source;
   set->code_image_set = code_image_set;
   set->filter_list = filter_list;
+  set->smoke_list =
+    code_dream_smoke_list_create(code_image_set->theme->func_face.color,
+                                 screen_width,
+                                 screen_height);
   return set;
 }
 
@@ -79,14 +83,25 @@ code_dream_code_display_set_draw(code_dream_code_display_set_t *set,
   int i;
   for (i = 0; i < set->n_displays; ++i)
     {
+      double min = displays[i]->dist;
+      double max = (i == 0) ? DBL_MAX : displays[i - 1]->dist;
+      code_dream_smoke_list_draw_between(set->smoke_list,
+                                         renderer,
+                                         min,
+                                         max);
       code_dream_code_display_draw(displays[i], renderer);
     }
+  code_dream_smoke_list_draw_between(set->smoke_list,
+                                     renderer,
+                                     0.01,
+                                     displays[set->n_displays - 1]->dist);
   free(displays);
 }
 
 void
 code_dream_code_display_set_update(code_dream_code_display_set_t *set)
 {
+  code_dream_smoke_list_update(set->smoke_list);
   int i;
   for (i = 0; i < set->n_displays; ++i)
     {
@@ -146,6 +161,7 @@ code_dream_code_display_set_destroy(code_dream_code_display_set_t *set)
     {
       code_dream_code_display_destroy(set->displays[i]);
     }
+  code_dream_smoke_list_destroy(set->smoke_list);
   free(set->displays);
   free(set);
 }
