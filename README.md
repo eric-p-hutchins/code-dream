@@ -120,18 +120,10 @@ TODO
 * Option for parsing a diff and using all the files mentioned in the
   diff
 
-* Add option for total time (in seconds, milliseconds, etc.) so that
-  for creating output you can run 1 command and leave it alone to get
-  a 5-minute clip or 10-minute clip, without having to keep track and
-  quit manually
-
 * Support giving a list of files/directories (similar to `ls` or `git
   add`) so I can say `code-dream src/main.c
   src/code-dream-format-type.h` and get just those 2 files (or specify
   directories and get whatever is in those directories too)
-
-* Make a mode to just generate the output file without showing the
-  realtime version on screen
 
 * Add ability to pass more options to gif and video output (bitrate,
   framerate, colors, etc.)
@@ -193,6 +185,14 @@ TODO
 
 * Do something different for different levels of bold specified by
   Emacs face spec: `(semi-bold bold extra-bold ultra-bold)`
+
+* ~~Make a mode to just generate the output file without showing the
+  realtime version on screen~~
+
+* ~~Add option for total time (in seconds, milliseconds, etc.) so that
+  for creating output you can run 1 command and leave it alone to get
+  a 5-minute clip or 10-minute clip, without having to keep track and
+  quit manually~~
 
 * ~~Properly handle tab width and non-ascii characters. Currently, it
   assumes iso-8859-1 encoding and if you give it utf-8 it will do what

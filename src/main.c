@@ -58,86 +58,69 @@ draw_to_renderer(code_dream_theme_t *theme,
                          255);
   SDL_RenderClear(renderer);
   code_dream_code_display_set_draw(displays, renderer);
+  SDL_RenderPresent(renderer);
 }
 
 void
 draw(code_dream_theme_t *theme,
      code_dream_code_display_set_t *displays,
-     code_dream_loading_screen_t *loading_screen,
      code_source_t *code_source,
      code_image_set_t *code_image_set,
-     SDL_Window *window,
+     SDL_Renderer *renderer,
      code_dream_gif_writer_t *gif_writer,
      code_dream_video_writer_t *video_writer)
 {
-  SDL_Renderer *renderer = SDL_GetRenderer(window);
-  if (code_source_loading(code_source)
-      || code_image_set_loading(code_image_set))
-    {
-      code_dream_loading_screen_draw(loading_screen);
-    }
-  else
+  if (renderer != NULL)
     {
       draw_to_renderer(theme, displays, renderer);
-      if (gif_writer != NULL && displays->n_displays > 0)
-        {
-          draw_to_renderer(theme,
-                           displays,
-                           code_dream_gif_writer_get_renderer(gif_writer));
-          code_dream_gif_writer_draw_frame(gif_writer, displays);
-        }
-      if (video_writer != NULL && displays->n_displays > 0)
-        {
-          draw_to_renderer(theme,
-                           displays,
-                           code_dream_video_writer_get_renderer(video_writer));
-          code_dream_video_writer_write_frame(video_writer, displays);
-        }
     }
-
-  SDL_RenderPresent(renderer);
+  if (gif_writer != NULL && displays->n_displays > 0)
+    {
+      draw_to_renderer(theme,
+                       displays,
+                       code_dream_gif_writer_get_renderer(gif_writer));
+      code_dream_gif_writer_draw_frame(gif_writer, displays);
+    }
+  if (video_writer != NULL && displays->n_displays > 0)
+    {
+      draw_to_renderer(theme,
+                       displays,
+                       code_dream_video_writer_get_renderer(video_writer));
+      code_dream_video_writer_write_frame(video_writer, displays);
+    }
 }
 
 void
 update(code_source_t *code_source,
        code_image_set_t *code_image_set,
-       code_dream_loading_screen_t *loading_screen,
        code_dream_code_display_set_t *displays)
 {
-  if (code_source_loading(code_source)
-      || code_image_set_loading(code_image_set))
+  if (code_source->n_sets == 0)
     {
-      code_dream_loading_screen_update(loading_screen);
+      fprintf(stderr,
+              "Error: No source code found at file or directory %s\n",
+              code_source->filename);
+      code_source_destroy(code_source);
+      SDL_Quit();
+      exit(0);
     }
-  else
+  if (displays->n_displays == 0)
     {
-      if (code_source->n_sets == 0)
-        {
-          fprintf(stderr,
-                  "Error: No source code found at file or directory %s\n",
-                  code_source->filename);
-          code_source_destroy(code_source);
-          SDL_Quit();
-          exit(0);
-        }
-      if (displays->n_displays == 0)
-        {
-          code_dream_code_display_set_add_display(displays);
+      code_dream_code_display_set_add_display(displays);
 
-          code_dream_code_display_set_add_display(displays);
-          double dist_range =
-            displays->displays[1]->max_dist +
-            displays->displays[1]->min_dist;
-          displays->displays[1]->dist =
-            displays->displays[1]->min_dist
-            + dist_range * 2 / 3.0;
-          code_dream_code_display_set_add_display(displays);
-          displays->displays[2]->dist =
-            displays->displays[2]->min_dist
-            + dist_range / 3.0;
-        }
-      code_dream_code_display_set_update(displays);
+      code_dream_code_display_set_add_display(displays);
+      double dist_range =
+        displays->displays[1]->max_dist +
+        displays->displays[1]->min_dist;
+      displays->displays[1]->dist =
+        displays->displays[1]->min_dist
+        + dist_range * 2 / 3.0;
+      code_dream_code_display_set_add_display(displays);
+      displays->displays[2]->dist =
+        displays->displays[2]->min_dist
+        + dist_range / 3.0;
     }
+  code_dream_code_display_set_update(displays);
 }
 
 bool
@@ -229,6 +212,8 @@ parse_args(int argc, char *argv[])
   options->output = NULL;
   options->theme = NULL;
   options->light = true;
+  options->n_seconds = 0;
+  options->window = -1;
   int i;
   for (i = 1; i < argc; ++i)
     {
@@ -264,6 +249,21 @@ parse_args(int argc, char *argv[])
               free(options->output);
               options->output = NULL;
             }
+          else
+            {
+              // Turn off the window, unless it was explicitly turned on
+              if (options->window == -1)
+                {
+                  options->window = 0;
+                }
+            }
+          continue;
+        }
+      else if (parse_int_arg(argc, argv, "-s", "seconds", &i,
+                             &options->n_seconds)
+               || parse_int_arg(argc, argv, "--seconds", "seconds", &i,
+                                &options->n_seconds))
+        {
           continue;
         }
       else if (parse_string_arg(argc, argv, "-t", "--theme",
@@ -276,8 +276,13 @@ parse_args(int argc, char *argv[])
         {
           options->version = true;
         }
+      else if (strcmp("-w", argv[i]) == 0
+               || strcmp("--window", argv[i]) == 0)
+        {
+          options->window = 1;
+        }
       else if (parse_int_arg(argc, argv, "--width", "screen width", &i,
-                        &options->screen_width))
+                             &options->screen_width))
         {
           continue;
         }
@@ -299,6 +304,10 @@ parse_args(int argc, char *argv[])
             }
         }
     }
+  if (options->window == -1)
+    {
+      options->window = 1;
+    }
   return options;
 }
 
@@ -317,9 +326,14 @@ char *help_text = "Usage: code-dream [OPTION]... [filename]\n"
   "                                    supported.\n"
   "      --version                   display version information and exit.\n"
   "      --width                     set screen width.\n"
+  "  -s, --seconds                   number of seconds of output to create.\n"
   "  -t, --theme                     set theme.\n"
   "                                    this can be anything that emacs will\n"
   "                                    recognize with M-x load-theme\n"
+  "  -w, --window                    create a window (default). Use this in\n"
+  "                                    combination with --output to produce\n"
+  "                                    output AND show on screen at the\n"
+  "                                    same time.\n"
   "  -x                              set screen x position.\n"
   "  -y                              set screen y position.\n"
   "\n"
@@ -381,17 +395,22 @@ main (int argc, char *argv[])
     {
       SDL_SetRelativeMouseMode(SDL_TRUE);
     }
-  SDL_Window *window = SDL_CreateWindow(title,
-                                        options->screen_x,
-                                        options->screen_y,
-                                        options->screen_width,
-                                        options->screen_height,
-                                        (options->fullscreen
-                                         ? SDL_WINDOW_FULLSCREEN : 0)
-                                        | SDL_WINDOW_OPENGL
-                                        | SDL_WINDOW_BORDERLESS);
-  SDL_Renderer *renderer =
-    SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC);
+  SDL_Window *window = NULL;
+  SDL_Renderer *renderer = NULL;
+  if (options->window)
+    {
+      window = SDL_CreateWindow(title,
+                                options->screen_x,
+                                options->screen_y,
+                                options->screen_width,
+                                options->screen_height,
+                                (options->fullscreen
+                                 ? SDL_WINDOW_FULLSCREEN : 0)
+                                | SDL_WINDOW_OPENGL
+                                | SDL_WINDOW_BORDERLESS);
+      renderer =
+        SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC);
+    }
   SDL_Renderer *output_renderer = NULL;
   code_dream_theme_t *theme = code_dream_theme_create(options->theme,
                                                       options->light,
@@ -431,10 +450,17 @@ main (int argc, char *argv[])
     }
   SDL_Renderer *gif_writer_renderer = NULL;
   SDL_Renderer *video_writer_renderer = NULL;
+  SDL_Renderer *first_renderer = renderer;
+  SDL_Renderer *second_renderer = output_renderer;
+  if (first_renderer == NULL)
+    {
+      first_renderer = output_renderer;
+      second_renderer = NULL;
+    }
   code_image_set_t *code_image_set =
     code_image_set_create(basedir, code_source, theme,
-                          renderer,
-                          output_renderer,
+                          first_renderer,
+                          second_renderer,
                           NULL);
   if (code_image_set == NULL)
     {
@@ -459,10 +485,14 @@ main (int argc, char *argv[])
                                        options->screen_height,
                                        filter_list);
 
-  code_dream_loading_screen_t *loading_screen =
-    code_dream_loading_screen_create(renderer,
-                                     options->screen_width,
-                                     options->screen_height);
+  code_dream_loading_screen_t *loading_screen = NULL;
+  if (renderer != NULL)
+    {
+      loading_screen =
+        code_dream_loading_screen_create(renderer,
+                                         options->screen_width,
+                                         options->screen_height);
+    }
 
   int t = 0;
 
@@ -493,35 +523,53 @@ main (int argc, char *argv[])
         }
       next_frame_time = current_frame_time + 20;
       handle_events(&running);
-      update(code_source,
-             code_image_set,
-             loading_screen,
-             displays);
-      draw(theme,
-           displays,
-           loading_screen,
-           code_source,
-           code_image_set,
-           window,
-           gif_writer,
-           video_writer);
-      Sint32 time_left = next_frame_time - SDL_GetTicks();
-      if (time_left > 0)
+      if (code_source_loading(code_source)
+          || code_image_set_loading(code_image_set))
         {
-          // Wait 2 ms less than the time left because it might sleep
-          // too long because of OS scheduling.
-          //
-          // Then just tight loop for the last 2 ms (or less)
-          if (time_left - 2 > 0)
+          if (options->window)
             {
-              SDL_Delay(time_left - 2);
-            }
-          while (!SDL_TICKS_PASSED(SDL_GetTicks(), next_frame_time))
-            {
-              ; // tight loop
+              code_dream_loading_screen_update(loading_screen);
+              code_dream_loading_screen_draw(loading_screen);
+              SDL_RenderPresent(renderer);
             }
         }
-      ++t;
+      else
+        {
+          update(code_source,
+                 code_image_set,
+                 displays);
+          draw(theme,
+               displays,
+               code_source,
+               code_image_set,
+               renderer,
+               gif_writer,
+               video_writer);
+          ++t;
+        }
+      if (options->window)
+        {
+          Sint32 time_left = next_frame_time - SDL_GetTicks();
+          if (time_left > 0)
+            {
+              // Wait 2 ms less than the time left because it might sleep
+              // too long because of OS scheduling.
+              //
+              // Then just tight loop for the last 2 ms (or less)
+              if (time_left - 2 > 0)
+                {
+                  SDL_Delay(time_left - 2);
+                }
+              while (!SDL_TICKS_PASSED(SDL_GetTicks(), next_frame_time))
+                {
+                  ; // tight loop
+                }
+            }
+        }
+      if (options->n_seconds && t >= options->n_seconds * 50)
+        {
+          running = false;
+        }
     }
 
   if (options->output != NULL)

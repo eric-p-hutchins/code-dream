@@ -35,6 +35,8 @@ struct code_dream_options_t
   char *output;
   char *filename;
   char *theme;
+  int n_seconds;
+  int window;
 };
 
 #endif
