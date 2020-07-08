@@ -32,6 +32,8 @@
 #include "config.h"
 #include "filters.h"
 
+bool skip = false;
+
 void
 handle_events(bool *running)
 {
@@ -41,6 +43,18 @@ handle_events(bool *running)
       switch (event.type) {
       case SDL_QUIT:
         *running = false;
+        break;
+      case SDL_KEYDOWN:
+        if (event.key.keysym.sym == SDLK_f)
+          {
+            skip = true;
+          }
+        break;
+      case SDL_KEYUP:
+        if (event.key.keysym.sym == SDLK_f)
+          {
+            skip = false;
+          }
         break;
       }
     }
@@ -538,13 +552,16 @@ main (int argc, char *argv[])
           update(code_source,
                  code_image_set,
                  displays);
-          draw(theme,
-               displays,
-               code_source,
-               code_image_set,
-               renderer,
-               gif_writer,
-               video_writer);
+          if (!skip)
+            {
+              draw(theme,
+                   displays,
+                   code_source,
+                   code_image_set,
+                   renderer,
+                   gif_writer,
+                   video_writer);
+            }
           ++t;
         }
       if (options->window)

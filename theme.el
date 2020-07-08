@@ -15,7 +15,7 @@
 
 ;; You should have received a copy of the GNU General Public License
 ;; along with Code Dream.  If not, see <https:;;www.gnu.org/licenses/>.
-
+(load "~/.emacs")
 (require 'color)
 (require 'seq)
 (autoload-do-load 'color-rgb-to-hex)
