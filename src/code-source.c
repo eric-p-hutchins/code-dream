@@ -297,6 +297,7 @@ is_source_code_filename(const char *filename)
                       ".rs",
                       ".scm",
                       ".sh",
+                      ".vue",
                       NULL);
   int i;
   for (i = 0; i < n_extensions; ++i)

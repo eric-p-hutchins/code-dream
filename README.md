@@ -66,6 +66,7 @@ across it before somewhere):
 * `.rs`
 * `.scm`
 * `.sh`
+* `.vue`
 
 Examples:
 
